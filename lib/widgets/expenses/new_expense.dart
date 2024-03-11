@@ -1,8 +1,10 @@
+import 'package:expense_tracker/data/dummy_data.dart';
+import 'package:expense_tracker/models/account.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:expense_tracker/models/expese.dart';
+import 'dart:io';
 
 final dateFormater = DateFormat.yMMMd();
 
@@ -18,7 +20,7 @@ class NewExpense extends StatefulWidget {
 class _NewExpenseState extends State<NewExpense> {
   final _amountController = TextEditingController();
   Category _selectedCategory = Category.food;
-  Account _selectedAccount = Account.cash;
+  Account _selectedAccount = accountByType(AccountType.creditCard);
   DateTime? _selectedDate = DateTime.now();
 
   _presentDatePicker() async {
@@ -29,16 +31,31 @@ class _NewExpenseState extends State<NewExpense> {
       firstDate: DateTime(now.year),
       lastDate: now,
     );
-
     setState(() {
       _selectedDate = pickedDate;
     });
   }
 
-  _submitData() {
-    final enteredAmount = double.tryParse(_amountController.text);
-    if (enteredAmount == null || enteredAmount <= 0) {
-      return showDialog(
+  void _showDialog() {
+    if (Platform.isIOS) {
+      showCupertinoDialog(
+          context: context,
+          builder: (ctx) {
+            return CupertinoAlertDialog(
+              title: const Text('Invalid amount'),
+              content: const Text('Please enter a valid amount'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },
+                  child: const Text('Okay'),
+                ),
+              ],
+            );
+          });
+    } else {
+      showDialog(
           context: context,
           builder: (ctx) {
             return AlertDialog(
@@ -54,6 +71,13 @@ class _NewExpenseState extends State<NewExpense> {
               ],
             );
           });
+    }
+  }
+
+  _submitData() {
+    final enteredAmount = double.tryParse(_amountController.text);
+    if (enteredAmount == null || enteredAmount <= 0) {
+      return _showDialog();
     }
 
     final newExpense = Expense(
@@ -76,7 +100,7 @@ class _NewExpenseState extends State<NewExpense> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -190,7 +214,7 @@ class _NewExpenseState extends State<NewExpense> {
                   isExpanded: true,
                   value: _selectedAccount,
                   hint: const Text('Account'),
-                  items: Account.values
+                  items: dummyAccounts
                       .map(
                         (account) => DropdownMenuItem(
                           value: account,
@@ -216,23 +240,43 @@ class _NewExpenseState extends State<NewExpense> {
           ),
           Row(
             children: [
-              OutlinedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text(
-                  'Cancel',
+              if (Platform.isIOS)
+                CupertinoButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(
+                    'Cancel',
+                  ),
+                )
+              else
+                OutlinedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(
+                    'Cancel',
+                  ),
                 ),
-              ),
               const Spacer(),
-              ElevatedButton(
-                onPressed: () {
-                  _submitData();
-                },
-                child: const Text(
-                  'Add Expense',
-                ),
-              ),
+              if (Platform.isIOS)
+                CupertinoButton.filled(
+                  onPressed: () {
+                    _submitData();
+                  },
+                  child: const Text(
+                    'Add Expense',
+                  ),
+                )
+              else
+                ElevatedButton(
+                  onPressed: () {
+                    _submitData();
+                  },
+                  child: const Text(
+                    'Add Expense',
+                  ),
+                )
             ],
           ),
         ],

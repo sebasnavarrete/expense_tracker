@@ -10,7 +10,16 @@ class ExpenseItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
-        title: Text(expense.category.name.toUpperCase()),
+        title: Row(
+          children: [
+            Icon(
+              categoryIcons[expense.category],
+              size: 16.0,
+            ),
+            const SizedBox(width: 4.0),
+            Text(expense.category.name.toUpperCase()),
+          ],
+        ),
         subtitle: Row(
           children: [
             Row(
@@ -29,16 +38,7 @@ class ExpenseItem extends StatelessWidget {
               ],
             ),
             const Spacer(),
-            Row(
-              children: [
-                Icon(
-                  categoryIcons[expense.category],
-                  size: 16.0,
-                ),
-                const SizedBox(width: 4.0),
-                Text(expense.formattedDate),
-              ],
-            ),
+            Text(expense.formattedDate),
           ],
         ),
       ),

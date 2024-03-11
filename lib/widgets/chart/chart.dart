@@ -1,4 +1,4 @@
-import 'package:expense_tracker/chart/chart_bar.dart';
+import 'package:expense_tracker/widgets/chart/chart_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/models/expese.dart';
 
@@ -11,10 +11,23 @@ class Chart extends StatelessWidget {
     final List<ExpenseBucket> buckets = [];
     for (final expense in expenses) {
       if (expense.amount > 0) {
-        buckets.add(ExpenseBucket.forCategory(expenses, expense.category));
+        final existingBucket = buckets.firstWhere(
+          (bucket) => bucket.category == expense.category,
+          orElse: () => ExpenseBucket(
+            category: expense.category,
+            account: expense.account,
+            expenses: [],
+          ),
+        );
+        if (existingBucket.expenses.isEmpty) {
+          existingBucket.expenses.add(expense);
+          buckets.add(existingBucket);
+        } else {
+          final index = buckets.indexOf(existingBucket);
+          buckets[index].expenses.add(expense);
+        }
       }
     }
-
     return buckets;
   }
 
@@ -27,9 +40,7 @@ class Chart extends StatelessWidget {
           maxTotalExpense = bucket.totalExpenses;
         }
       } else {
-        print(bucket);
         buckets.remove(bucket);
-        print(buckets.length);
       }
     }
 

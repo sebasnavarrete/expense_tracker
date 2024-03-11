@@ -1,34 +1,23 @@
-import 'package:expense_tracker/chart/chart.dart';
-import 'package:expense_tracker/expenses/expenses_list.dart';
-import 'package:expense_tracker/expenses/new_expense.dart';
+import 'package:expense_tracker/widgets/chart/chart.dart';
+import 'package:expense_tracker/data/dummy_data.dart';
+import 'package:expense_tracker/widgets/expenses/expenses_list.dart';
+import 'package:expense_tracker/widgets/expenses/new_expense.dart';
 import 'package:expense_tracker/models/expese.dart';
 import 'package:flutter/material.dart';
 
-class Expenses extends StatefulWidget {
-  const Expenses({super.key});
+class ExpensesScreen extends StatefulWidget {
+  const ExpensesScreen({super.key});
 
   @override
-  State<Expenses> createState() => _ExpensesState();
+  State<ExpensesScreen> createState() => _ExpensesScreenState();
 }
 
-class _ExpensesState extends State<Expenses> {
-  final List<Expense> _registeredExpenses = [
-    Expense(
-      amount: 19.99,
-      date: DateTime.now(),
-      category: Category.food,
-      account: Account.cash,
-    ),
-    Expense(
-      amount: 50.00,
-      date: DateTime.now(),
-      category: Category.transportation,
-      account: Account.creditCard,
-    ),
-  ];
+class _ExpensesScreenState extends State<ExpensesScreen> {
+  final List<Expense> _registeredExpenses = dummyExpenses;
 
   void _openAddExpenseForm() {
     showModalBottomSheet(
+        useSafeArea: true,
         isScrollControlled: true,
         context: context,
         builder: (ctx) {

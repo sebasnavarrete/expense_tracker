@@ -1,3 +1,4 @@
+import 'package:expense_tracker/models/account.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
@@ -15,13 +16,6 @@ enum Category {
   entertainment,
   savings,
   investments,
-  other,
-}
-
-enum Account {
-  cash,
-  creditCard,
-  bankAccount,
   other,
 }
 
@@ -64,7 +58,7 @@ class ExpenseBucket {
 
   ExpenseBucket.forCategory(List<Expense> allExpenses, this.category)
       : expenses = allExpenses.where((e) => e.category == category).toList(),
-        account = Account.other;
+        account = accountByType(AccountType.other);
 
   ExpenseBucket.forAccount(List<Expense> allExpenses, this.account)
       : expenses = allExpenses.where((e) => e.account == account).toList(),
