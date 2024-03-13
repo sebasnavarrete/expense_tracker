@@ -1,5 +1,6 @@
 import 'package:expense_tracker/data/dummy_data.dart';
 import 'package:expense_tracker/models/account.dart';
+import 'package:expense_tracker/models/category.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -19,7 +20,7 @@ class NewExpense extends StatefulWidget {
 
 class _NewExpenseState extends State<NewExpense> {
   final _amountController = TextEditingController();
-  Category _selectedCategory = Category.food;
+  Category _selectedCategory = categoryByType(CategoryType.food);
   Account _selectedAccount = accountByType(AccountType.creditCard);
   DateTime? _selectedDate = DateTime.now();
 
@@ -173,7 +174,7 @@ class _NewExpenseState extends State<NewExpense> {
                   isExpanded: true,
                   value: _selectedCategory,
                   hint: const Text('Category'),
-                  items: Category.values
+                  items: dummyCategories
                       .map(
                         (category) => DropdownMenuItem(
                           value: category,

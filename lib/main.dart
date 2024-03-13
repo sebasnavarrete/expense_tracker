@@ -1,4 +1,5 @@
 import 'package:expense_tracker/screens/accounts_screen.dart';
+import 'package:expense_tracker/screens/categories_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/screens/expenses_screen.dart';
 import 'package:flutter/services.dart';
@@ -73,7 +74,8 @@ void main() {
         ),
         themeMode: ThemeMode.system,
         //home: const ExpensesScreen(),
-        home: const AccountsScreen(),
+        home: const CategoriesScreen(),
+        //home: const AccountsScreen(),
       ),
     );
   });

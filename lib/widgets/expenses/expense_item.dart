@@ -13,7 +13,7 @@ class ExpenseItem extends StatelessWidget {
         title: Row(
           children: [
             Icon(
-              categoryIcons[expense.category],
+              IconData(expense.category.icon, fontFamily: 'MaterialIcons'),
               size: 16.0,
             ),
             const SizedBox(width: 4.0),

@@ -1,18 +1,20 @@
-import 'package:expense_tracker/models/account.dart';
+import 'package:expense_tracker/models/category.dart';
 import 'package:flutter/material.dart';
 
-class AccountGridItem extends StatelessWidget {
-  const AccountGridItem({
+class CategoryGridItem extends StatelessWidget {
+  const CategoryGridItem({
     super.key,
-    required this.account,
+    required this.category,
+    required this.editCategory,
   });
 
-  final Account account;
+  final Category category;
+  final void Function() editCategory;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: editCategory,
       splashColor: Theme.of(context).colorScheme.primary,
       borderRadius: BorderRadius.circular(8),
       child: Container(
@@ -20,8 +22,8 @@ class AccountGridItem extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              account.color.withOpacity(0.6),
-              account.color,
+              category.color.withOpacity(0.6),
+              category.color,
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -31,7 +33,7 @@ class AccountGridItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(account.name, style: Theme.of(context).textTheme.titleLarge),
+            Text(category.name, style: Theme.of(context).textTheme.titleLarge),
           ],
         ),
       ),

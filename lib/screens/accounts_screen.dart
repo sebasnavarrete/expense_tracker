@@ -7,23 +7,30 @@ class AccountsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget content = GridView(
+      padding: const EdgeInsets.all(16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 3 / 2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+      ),
+      children: [
+        for (final account in dummyAccounts) AccountGridItem(account: account),
+      ],
+    );
+
+    if (dummyAccounts.isEmpty) {
+      content = const Center(
+        child: Text('No accounts found, please add some.'),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Accounts'),
       ),
-      body: GridView(
-        padding: const EdgeInsets.all(16),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 3 / 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-        ),
-        children: [
-          for (final account in dummyAccounts)
-            AccountGridItem(account: account),
-        ],
-      ),
+      body: content,
     );
   }
 }

@@ -1,36 +1,10 @@
 import 'package:expense_tracker/models/account.dart';
-import 'package:flutter/material.dart';
+import 'package:expense_tracker/models/category.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 const uuid = Uuid();
 final dateFormatter = DateFormat('dd-MM-yyyy');
-
-enum Category {
-  food,
-  transportation,
-  housing,
-  utilities,
-  health,
-  personal,
-  entertainment,
-  savings,
-  investments,
-  other,
-}
-
-const categoryIcons = {
-  Category.food: Icons.fastfood,
-  Category.transportation: Icons.directions_car,
-  Category.housing: Icons.home,
-  Category.utilities: Icons.flash_on,
-  Category.health: Icons.healing,
-  Category.personal: Icons.person,
-  Category.entertainment: Icons.movie,
-  Category.savings: Icons.account_balance,
-  Category.investments: Icons.trending_up,
-  Category.other: Icons.attach_money,
-};
 
 class Expense {
   final String id;
@@ -62,7 +36,7 @@ class ExpenseBucket {
 
   ExpenseBucket.forAccount(List<Expense> allExpenses, this.account)
       : expenses = allExpenses.where((e) => e.account == account).toList(),
-        category = Category.other;
+        category = categoryByType(CategoryType.other);
 
   final Category? category;
   final Account? account;
