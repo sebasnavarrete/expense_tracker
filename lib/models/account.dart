@@ -26,3 +26,8 @@ accountByType(AccountType accountType) {
   const accounts = dummyAccounts;
   return accounts.firstWhere((account) => account.accountType == accountType);
 }
+
+accountById(String accountId) {
+  const accounts = dummyAccounts;
+  return accounts.firstWhere((account) => account.id == accountId);
+}

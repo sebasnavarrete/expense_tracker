@@ -1,24 +1,26 @@
 import 'package:expense_tracker/models/account.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
+import "package:collection/collection.dart";
 
-const uuid = Uuid();
 final dateFormatter = DateFormat('dd-MM-yyyy');
 
 class Expense {
-  final String id;
+  String id;
   final double amount;
   final DateTime date;
   final Category category;
   final Account account;
+  String notes;
 
   Expense({
+    this.id = '',
     required this.amount,
     required this.date,
     required this.category,
     required this.account,
-  }) : id = uuid.v4();
+    this.notes = '',
+  });
 
   String get formattedDate => dateFormatter.format(date);
 }
@@ -48,5 +50,17 @@ class ExpenseBucket {
       total += expense.amount;
     }
     return total;
+  }
+}
+
+class ExpenseList {
+  ExpenseList(this.expenses);
+
+  final List<Expense> expenses;
+
+// get grouped expenses by date using collection
+  Map<String, List<Expense>> get groupedExpenses {
+    final groupedExpenses = groupBy(expenses, (Expense e) => e.formattedDate);
+    return groupedExpenses;
   }
 }

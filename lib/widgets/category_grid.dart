@@ -9,12 +9,12 @@ class CategoryGridItem extends StatelessWidget {
   });
 
   final Category category;
-  final void Function() editCategory;
+  final void Function(Category) editCategory;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: editCategory,
+      onTap: () => editCategory(category),
       splashColor: Theme.of(context).colorScheme.primary,
       borderRadius: BorderRadius.circular(8),
       child: Container(
@@ -33,7 +33,10 @@ class CategoryGridItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(category.name, style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              category.name,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
           ],
         ),
       ),

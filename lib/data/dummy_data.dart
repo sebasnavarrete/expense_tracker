@@ -5,34 +5,32 @@ import 'package:flutter/material.dart';
 
 List<Expense> dummyExpenses = [
   Expense(
+    id: '1',
     amount: 19.99,
     date: DateTime.now(),
     category: categoryByType(CategoryType.food),
     account: accountByType(AccountType.cash),
   ),
   Expense(
+    id: '2',
     amount: 15.00,
     date: DateTime.now(),
     category: categoryByType(CategoryType.transportation),
     account: accountByType(AccountType.creditCard),
   ),
   Expense(
+    id: '3',
     amount: 100.00,
     date: DateTime.now(),
     category: categoryByType(CategoryType.food),
     account: accountByType(AccountType.bankAccount),
   ),
   Expense(
+    id: '4',
     amount: 20.00,
     date: DateTime.now(),
     category: categoryByType(CategoryType.personal),
     account: accountByType(AccountType.creditCard),
-  ),
-  Expense(
-    amount: 10.00,
-    date: DateTime.now(),
-    category: categoryByType(CategoryType.transportation),
-    account: accountByType(AccountType.bankAccount),
   ),
 ];
 

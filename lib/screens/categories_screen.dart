@@ -26,7 +26,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         context: context,
         builder: (ctx) {
           return CategoryForm(
-              category: category, onCategorySubmit: _addCategory);
+            category: category,
+            onCategorySubmit: _addCategory,
+          );
         });
   }
 
@@ -44,9 +46,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         for (final category in dummyCategories)
           CategoryGridItem(
             category: category,
-            editCategory: () {
-              _openCategoryForm(category);
-            },
+            editCategory: _openCategoryForm,
           ),
       ],
     );
@@ -57,9 +57,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       );
     }
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Categories'),
-      ),
       body: content,
     );
   }

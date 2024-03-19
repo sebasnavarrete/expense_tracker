@@ -34,3 +34,8 @@ categoryByType(CategoryType categoryType) {
   const data = dummyCategories;
   return data.firstWhere((c) => c.categoryType == categoryType);
 }
+
+categoryById(String categoryId) {
+  const data = dummyCategories;
+  return data.firstWhere((c) => c.id == categoryId);
+}
