@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:expense_tracker/data/dummy_data.dart';
 import 'package:expense_tracker/models/account.dart';
 import 'package:expense_tracker/models/category.dart';
+import 'package:expense_tracker/providers/categories.dart';
 import 'package:expense_tracker/services/expense_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -34,8 +35,8 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
   var expenseId = '';
   final _amountController = TextEditingController();
   final _notesController = TextEditingController();
-  Category _selectedCategory = categoryByType(CategoryType.food);
-  Account _selectedAccount = accountByType(AccountType.creditCard);
+  Category? _selectedCategory;
+  Account? _selectedAccount;
   DateTime? _selectedDate = DateTime.now();
 
   _presentDatePicker() async {
@@ -145,12 +146,13 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
 
   @override
   Widget build(BuildContext context) {
+    //list of categories
+    final categories = ref.watch(categoriesProvider);
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Form(
         key: _formKey,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Row(
               children: [
@@ -234,7 +236,7 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
                     isExpanded: true,
                     value: _selectedCategory,
                     hint: const Text('Category'),
-                    items: dummyCategories
+                    items: categories
                         .map(
                           (category) => DropdownMenuItem(
                             value: category,
@@ -311,49 +313,26 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
               ],
             ),
             const SizedBox(
-              height: 16,
+              height: 32,
             ),
-            Row(
-              children: [
-                if (Platform.isIOS)
-                  CupertinoButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text(
-                      'Cancel',
-                    ),
-                  )
-                else
-                  OutlinedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text(
-                      'Cancel',
-                    ),
-                  ),
-                const Spacer(),
-                if (Platform.isIOS)
-                  CupertinoButton.filled(
-                    onPressed: () {
-                      _submitData();
-                    },
-                    child: const Text(
-                      'Save Expense',
-                    ),
-                  )
-                else
-                  ElevatedButton(
-                    onPressed: () {
-                      _submitData();
-                    },
-                    child: const Text(
-                      'Save Expense',
-                    ),
-                  )
-              ],
-            ),
+            if (Platform.isIOS)
+              CupertinoButton.filled(
+                onPressed: () {
+                  _submitData();
+                },
+                child: const Text(
+                  'Save Expense',
+                ),
+              )
+            else
+              ElevatedButton(
+                onPressed: () {
+                  _submitData();
+                },
+                child: const Text(
+                  'Save Expense',
+                ),
+              )
           ],
         ),
       ),

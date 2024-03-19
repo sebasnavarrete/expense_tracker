@@ -9,31 +9,19 @@ import 'package:expense_tracker/models/category.dart';
 class ExpenseService {
   static const backendUrl = Constants.backendUrl;
 
-  Future<List<Expense>> getExpenses() async {
+  Future<dynamic> getExpenses() async {
     try {
       final url = Uri.https(backendUrl, 'expenses.json');
       final response = await http.get(url);
       if (response.statusCode != 200) {
         throw Exception('Failed to load expenses');
       }
+      print(response.body);
       if (response.body == 'null') {
         return [];
       }
       final Map<String, dynamic> expensesData = jsonDecode(response.body);
-      final List<Expense> loadedExpenses = [];
-      for (final item in expensesData.entries) {
-        loadedExpenses.add(
-          Expense(
-            id: item.key,
-            amount: item.value['amount'],
-            date: DateTime.parse(item.value['date']),
-            category: categoryById(item.value['category']),
-            account: accountById(item.value['account']),
-            notes: item.value['notes'] ?? '',
-          ),
-        );
-      }
-      return loadedExpenses;
+      return expensesData;
     } catch (e) {
       print(e);
       return [];
@@ -47,8 +35,8 @@ class ExpenseService {
       body: jsonEncode({
         'amount': expense.amount,
         'date': expense.date.toIso8601String(),
-        'category': expense.category.id,
-        'account': expense.account.id,
+        'category': expense.category!.id,
+        'account': expense.account!.id,
         'notes': expense.notes,
       }),
     );
@@ -62,8 +50,8 @@ class ExpenseService {
       body: jsonEncode({
         'amount': expense.amount,
         'date': expense.date.toIso8601String(),
-        'category': expense.category.id,
-        'account': expense.account.id,
+        'category': expense.category!.id,
+        'account': expense.account!.id,
         'notes': expense.notes,
       }),
     );

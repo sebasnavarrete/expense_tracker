@@ -42,6 +42,8 @@ dependencies:
   currency_text_input_formatter: ^2.1.14
   flutter_riverpod: ^2.5.1
   collection: ^1.18.0
+  flutter_colorpicker: ^1.0.3
+  flutter_iconpicker: ^3.3.3
 
 dev_dependencies:
   flutter_test:

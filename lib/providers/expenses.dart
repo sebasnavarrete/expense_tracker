@@ -1,12 +1,33 @@
 import 'package:expense_tracker/models/expese.dart';
 import 'package:expense_tracker/services/expense_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:expense_tracker/models/account.dart';
+import 'package:expense_tracker/models/category.dart';
+
+import 'package:expense_tracker/providers/categories.dart';
 
 class ExpensesNotifier extends StateNotifier<List<Expense>> {
-  ExpensesNotifier() : super([]);
+  ExpensesNotifier(this.ref) : super([]);
+
+  final ref;
 
   Future<void> getExpenses() async {
-    final loadedExpenses = await ExpenseService().getExpenses();
+    final getData = await ExpenseService().getExpenses();
+    final categories = ref.read(categoriesProvider);
+    final List<Expense> loadedExpenses = [];
+    for (final item in getData.entries) {
+      loadedExpenses.add(
+        Expense(
+          id: item.key,
+          amount: item.value['amount'],
+          date: DateTime.parse(item.value['date']),
+          category:
+              CategoryList(categories).categoryById(item.value['category']),
+          account: accountById(item.value['account']),
+          notes: item.value['notes'] ?? '',
+        ),
+      );
+    }
     state = loadedExpenses;
   }
 
@@ -32,5 +53,5 @@ class ExpensesNotifier extends StateNotifier<List<Expense>> {
 }
 
 final expensesProvider = StateNotifierProvider<ExpensesNotifier, List<Expense>>(
-  (ref) => ExpensesNotifier(),
+  (ref) => ExpensesNotifier(ref),
 );

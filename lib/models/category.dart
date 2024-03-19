@@ -1,41 +1,38 @@
-import 'package:expense_tracker/data/dummy_data.dart';
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
-enum CategoryType {
-  food,
-  transportation,
-  housing,
-  utilities,
-  health,
-  personal,
-  entertainment,
-  savings,
-  investments,
-  other,
-}
+import 'package:flutter/material.dart';
+import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 
 class Category {
-  const Category({
-    required this.id,
+  Category({
+    this.id = '',
     required this.name,
-    required this.categoryType,
     required this.icon,
-    this.color = Colors.orange,
+    required this.color,
   });
 
-  final String id;
+  String id;
   final String name;
-  final int icon;
-  final CategoryType categoryType;
-  final Color color;
+  final String icon;
+  final String color;
 }
 
-categoryByType(CategoryType categoryType) {
-  const data = dummyCategories;
-  return data.firstWhere((c) => c.categoryType == categoryType);
+class CategoryList {
+  CategoryList(this.categories);
+
+  final List<Category> categories;
+
+  Category categoryById(String id) {
+    return categories.firstWhere((c) => c.id == id,
+        orElse: () => Category(name: '', icon: '', color: ''));
+  }
 }
 
-categoryById(String categoryId) {
-  const data = dummyCategories;
-  return data.firstWhere((c) => c.id == categoryId);
+IconData? deserializeIconString(String icon) {
+  if (icon.isEmpty) {
+    return const IconData(0xe3af, fontFamily: 'MaterialIcons');
+  }
+  final iconData = jsonDecode(icon);
+  return deserializeIcon(Map<String, dynamic>.from(iconData),
+      iconPack: IconPack.allMaterial);
 }

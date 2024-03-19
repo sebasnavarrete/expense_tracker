@@ -9,16 +9,16 @@ class Expense {
   String id;
   final double amount;
   final DateTime date;
-  final Category category;
-  final Account account;
+  final Category? category;
+  final Account? account;
   String notes;
 
   Expense({
     this.id = '',
     required this.amount,
     required this.date,
-    required this.category,
-    required this.account,
+    this.category,
+    this.account,
     this.notes = '',
   });
 
@@ -36,9 +36,9 @@ class ExpenseBucket {
       : expenses = allExpenses.where((e) => e.category == category).toList(),
         account = accountByType(AccountType.other);
 
-  ExpenseBucket.forAccount(List<Expense> allExpenses, this.account)
+  /*ExpenseBucket.forAccount(List<Expense> allExpenses, this.account)
       : expenses = allExpenses.where((e) => e.account == account).toList(),
-        category = categoryByType(CategoryType.other);
+        category = categoryByType(CategoryType.other);*/
 
   final Category? category;
   final Account? account;

@@ -1,20 +1,66 @@
-import 'package:expense_tracker/data/dummy_data.dart';
 import 'package:expense_tracker/models/category.dart';
+import 'package:expense_tracker/providers/categories.dart';
+import 'package:expense_tracker/services/category_service.dart';
 import 'package:expense_tracker/widgets/category_form.dart';
 import 'package:expense_tracker/widgets/category_grid.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CategoriesScreen extends StatefulWidget {
+class CategoriesScreen extends ConsumerStatefulWidget {
   const CategoriesScreen({super.key});
 
   @override
-  State<CategoriesScreen> createState() => _CategoriesScreenState();
+  ConsumerState<CategoriesScreen> createState() => _CategoriesScreenState();
 }
 
-class _CategoriesScreenState extends State<CategoriesScreen> {
-  void _addCategory(Category category) {
-    setState(() {
-      dummyCategories.add(category);
+class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
+  late Future<void> _categoriesFuture;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _categoriesFuture = ref.read(categoriesProvider.notifier).getCategories();
+  }
+
+  void _removeCategory(Category category) {
+    final categoryIndex =
+        ref.read(categoriesProvider.notifier).getIndex(category);
+    ref.read(categoriesProvider.notifier).removeCategory(category);
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+          SnackBar(
+            content: const Text('Category removed'),
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'Undo',
+              onPressed: () {
+                setState(() {
+                  ref
+                      .read(categoriesProvider.notifier)
+                      .addCategoryIndex(category, categoryIndex);
+                });
+              },
+            ),
+          ),
+        )
+        .closed
+        .then((reason) async {
+      if (reason != SnackBarClosedReason.action) {
+        final response = await CategoryService().removeCategory(category);
+        if (response.statusCode >= 400) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to remove category'),
+            ),
+          );
+          ref.read(categoriesProvider.notifier).addCategoryIndex(
+                category,
+                categoryIndex,
+              );
+        }
+      }
     });
   }
 
@@ -27,37 +73,48 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         builder: (ctx) {
           return CategoryForm(
             category: category,
-            onCategorySubmit: _addCategory,
           );
         });
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget content = GridView(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 3 / 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-      ),
-      children: [
-        for (final category in dummyCategories)
-          CategoryGridItem(
-            category: category,
-            editCategory: _openCategoryForm,
-          ),
-      ],
+    List<Category> registeredCategories = ref.watch(categoriesProvider);
+
+    Widget content = FutureBuilder(
+      future: _categoriesFuture,
+      builder: (context, snapshot) =>
+          snapshot.connectionState == ConnectionState.waiting
+              ? const Center(child: CircularProgressIndicator())
+              : GridView(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 3 / 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                  ),
+                  children: [
+                    for (final category in registeredCategories)
+                      CategoryGridItem(
+                        category: category,
+                        editCategory: _openCategoryForm,
+                        onRemoveCategory: _removeCategory,
+                      ),
+                  ],
+                ),
     );
 
-    if (dummyCategories.isEmpty) {
+    if (registeredCategories.isEmpty) {
       content = const Center(
         child: Text('No categories found, please add some.'),
       );
     }
     return Scaffold(
-      body: content,
-    );
+        body: content,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _openCategoryForm(null),
+          child: const Icon(Icons.add),
+        ));
   }
 }

@@ -1,43 +1,115 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:expense_tracker/models/category.dart';
+import 'package:expense_tracker/services/category_service.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_iconpicker/flutter_iconpicker.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CategoryForm extends StatefulWidget {
-  final Category category;
-  final Function(Category) onCategorySubmit;
+import 'package:expense_tracker/providers/categories.dart';
 
-  CategoryForm(
-      {super.key, required this.category, required this.onCategorySubmit});
+class CategoryForm extends ConsumerStatefulWidget {
+  final Category? category;
+
+  CategoryForm({super.key, required this.category});
 
   @override
   _CategoryFormState createState() => _CategoryFormState();
 }
 
-class _CategoryFormState extends State<CategoryForm> {
+class _CategoryFormState extends ConsumerState<CategoryForm> {
   final _formKey = GlobalKey<FormState>();
+
+  var categoryId = '';
   final _nameController = TextEditingController();
   final _colorController = TextEditingController();
+  final _iconController = TextEditingController();
+  IconData? icon;
+  Color? color;
+
+  _pickIcon() async {
+    icon = await showIconPicker(
+      context,
+      adaptiveDialog: true,
+      showTooltips: false,
+      showSearchBar: true,
+      iconPickerShape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      iconPackModes: [
+        (Platform.isIOS) ? IconPack.cupertino : IconPack.material
+      ],
+    );
+
+    if (icon != null) {
+      setState(() {
+        _iconController.text = jsonEncode(serializeIcon(icon!));
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     if (widget.category != null) {
-      _nameController.text = widget.category.name;
-      _colorController.text = widget.category.color.value.toRadixString(16);
+      categoryId = widget.category!.id;
+      _nameController.text = widget.category!.name;
+      _colorController.text = widget.category!.color;
+      _iconController.text = widget.category!.icon;
+      icon = deserializeIcon(
+        Map<String, dynamic>.from(jsonDecode(widget.category!.icon)),
+        iconPack: IconPack.allMaterial,
+      );
+      color = Color(int.parse(widget.category!.color, radix: 16));
     }
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      final name = _nameController.text;
-      final color = Color(int.parse(_colorController.text, radix: 16));
+  void _submitForm() async {
+    bool error = false;
+    String errorMessage = '';
+    if (_colorController.text.isEmpty) {
+      error = true;
+      errorMessage = 'Please select a color';
+    }
+    if (_iconController.text.isEmpty) {
+      error = true;
+      errorMessage = 'Please select an icon';
+    }
+    if (!error && _formKey.currentState!.validate()) {
       final newCategory = Category(
-          name: name,
-          color: color,
-          id: widget.category?.id ?? DateTime.now().toString(),
-          categoryType: widget.category?.categoryType ?? CategoryType.other,
-          icon: 0);
-      widget.onCategorySubmit(newCategory);
+        name: _nameController.text,
+        color: _colorController.text,
+        icon: _iconController.text,
+      );
+      if (categoryId.isNotEmpty) {
+        newCategory.id = categoryId;
+        //final response = await CategoryService().updateCategory(newCategory);
+        ref.read(categoriesProvider.notifier).updateCategory(newCategory);
+      } else {
+        final response = await CategoryService().addCategory(newCategory);
+        newCategory.id = jsonDecode(response.body)['name'];
+        ref.read(categoriesProvider.notifier).addCategory(newCategory);
+      }
       Navigator.of(context).pop();
+    } else if (errorMessage.isNotEmpty) {
+      showDialog(
+          context: context,
+          builder: (ctx) {
+            return AlertDialog(
+              title: const Text('Invalid data'),
+              content: Text(errorMessage),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },
+                  child: const Text('Okay'),
+                ),
+              ],
+            );
+          });
     }
   }
 
@@ -48,6 +120,7 @@ class _CategoryFormState extends State<CategoryForm> {
       child: Form(
         key: _formKey,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             TextFormField(
               controller: _nameController,
@@ -59,24 +132,82 @@ class _CategoryFormState extends State<CategoryForm> {
                 return null;
               },
             ),
-            TextFormField(
-              controller: _colorController,
-              decoration: const InputDecoration(labelText: 'Color'),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter a color';
-                }
-                if (value!.length != 6) {
-                  return 'Please enter a valid color';
-                }
-                return null;
-              },
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                if (color != null)
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: color,
+                    ),
+                    margin: const EdgeInsets.only(right: 16),
+                  ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          titlePadding: const EdgeInsets.all(0),
+                          contentPadding: const EdgeInsets.all(0),
+                          content: SingleChildScrollView(
+                            child: MaterialPicker(
+                              pickerColor: Colors.white,
+                              onColorChanged: (Color color) {
+                                print(color);
+                                _colorController.text =
+                                    color.value.toRadixString(16);
+                                this.color = color;
+                                setState(() {});
+                                Navigator.of(context).pop();
+                              },
+                              enableLabel: true,
+                              portraitOnly: true,
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  child: Text(color != null ? 'Change Color' : 'Select Color'),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _submitForm,
-              child: const Text('Submit'),
+            Row(
+              children: [
+                if (icon != null) Icon(icon, size: 40),
+                if (icon != null) const SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: _pickIcon,
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(icon != null ? 'Change Icon' : 'Select Icon'),
+                ),
+              ],
             ),
+            const SizedBox(height: 32),
+            if (Platform.isIOS)
+              CupertinoButton.filled(
+                onPressed: _submitForm,
+                child: const Text('Save category'),
+              )
+            else
+              ElevatedButton(
+                onPressed: _submitForm,
+                child: const Text('Save category'),
+              ),
           ],
         ),
       ),

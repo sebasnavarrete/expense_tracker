@@ -1,3 +1,4 @@
+import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/models/expese.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ class ExpenseItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
-              IconData(expense.category.icon, fontFamily: 'MaterialIcons'),
+              deserializeIconString(expense.category!.icon),
               color: Theme.of(context).colorScheme.onPrimary,
               size: 16,
             ),
@@ -33,7 +34,7 @@ class ExpenseItem extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      expense.category.name,
+                      expense.category!.name,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -54,7 +55,7 @@ class ExpenseItem extends StatelessWidget {
                         style: Theme.of(context).textTheme.bodySmall),
                     const Spacer(),
                     Text(
-                      ' ${expense.account.name.toUpperCase()}',
+                      ' ${expense.account!.name.toUpperCase()}',
                       style: const TextStyle(
                         fontSize: 10.0,
                       ),

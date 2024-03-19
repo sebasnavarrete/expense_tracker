@@ -1,5 +1,6 @@
 import 'package:expense_tracker/models/account.dart';
 import 'package:expense_tracker/models/category.dart';
+import 'package:expense_tracker/providers/categories.dart';
 import 'package:expense_tracker/services/expense_service.dart';
 import 'package:expense_tracker/widgets/chart/chart.dart';
 import 'package:expense_tracker/widgets/expenses/expenses_list.dart';
@@ -26,13 +27,6 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
     _expensesFuture = ref.read(expensesProvider.notifier).getExpenses();
   }
 
-  final defaultExpense = Expense(
-    amount: 0,
-    date: DateTime.now(),
-    category: categoryByType(CategoryType.other),
-    account: accountByType(AccountType.other),
-  );
-
   void _openExpenseForm(Expense expense) {
     showModalBottomSheet(
         useSafeArea: true,
@@ -47,24 +41,23 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
     final expenseIndex = ref.read(expensesProvider.notifier).getIndex(expense);
     ref.read(expensesProvider.notifier).removeExpense(expense);
     ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger
-        .of(context)
+    ScaffoldMessenger.of(context)
         .showSnackBar(
-      SnackBar(
-        content: const Text('Expense removed'),
-        duration: const Duration(seconds: 5),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () {
-            setState(() {
-              ref
-                  .read(expensesProvider.notifier)
-                  .addExpenseIndex(expense, expenseIndex);
-            });
-          },
-        ),
-      ),
-    )
+          SnackBar(
+            content: const Text('Expense removed'),
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'Undo',
+              onPressed: () {
+                setState(() {
+                  ref
+                      .read(expensesProvider.notifier)
+                      .addExpenseIndex(expense, expenseIndex);
+                });
+              },
+            ),
+          ),
+        )
         .closed
         .then((reason) async {
       if (reason != SnackBarClosedReason.action) {
@@ -87,6 +80,13 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
   Widget build(BuildContext context) {
     List<Expense> registeredExpenses = ref.watch(expensesProvider);
 
+    final defaultExpense = Expense(
+      amount: 0,
+      date: DateTime.now(),
+      category: null,
+      account: null,
+    );
+
     Widget mainContent = const Center(
       child: Text('No expenses yet'),
     );
@@ -95,13 +95,13 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
       mainContent = FutureBuilder(
         future: _expensesFuture,
         builder: (context, snapshot) =>
-        snapshot.connectionState == ConnectionState.waiting
-            ? const Center(child: CircularProgressIndicator())
-            : ExpensesList(
-          expenses: registeredExpenses,
-          onRemoveExpense: _removeExpense,
-          onEditExpense: _openExpenseForm,
-        ),
+            snapshot.connectionState == ConnectionState.waiting
+                ? const Center(child: CircularProgressIndicator())
+                : ExpensesList(
+                    expenses: registeredExpenses,
+                    onRemoveExpense: _removeExpense,
+                    onEditExpense: _openExpenseForm,
+                  ),
       );
     }
 
