@@ -1,8 +1,8 @@
 import 'package:expense_tracker/models/account.dart';
 import 'package:expense_tracker/providers/accounts.dart';
 import 'package:expense_tracker/services/account_service.dart';
-import 'package:expense_tracker/widgets/account_form.dart';
-import 'package:expense_tracker/widgets/account_grid.dart';
+import 'package:expense_tracker/widgets/accounts/account_form.dart';
+import 'package:expense_tracker/widgets/accounts/account_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -109,6 +109,9 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
       );
     }
     return Scaffold(
+        appBar: AppBar(
+          title: const Text('Accounts'),
+        ),
         body: content,
         floatingActionButton: FloatingActionButton(
           onPressed: () => _openAccountForm(null),

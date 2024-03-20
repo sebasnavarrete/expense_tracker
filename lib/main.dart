@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 var kColorScheme = ColorScheme.fromSeed(
-  seedColor: const Color.fromARGB(255, 67, 105, 9),
+  seedColor: const Color.fromARGB(255, 75, 148, 143),
 );
 
 var kDarkColorScheme = ColorScheme.fromSeed(
@@ -58,12 +58,7 @@ void main() {
                 backgroundColor: kColorScheme.primaryContainer,
               ),
             ),
-            textTheme: GoogleFonts.ibmPlexSansTextTheme().copyWith(
-              titleLarge: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
+            textTheme: GoogleFonts.ibmPlexSansTextTheme(),
             dropdownMenuTheme: ThemeData().dropdownMenuTheme.copyWith(
                   inputDecorationTheme: InputDecorationTheme(
                     border: OutlineInputBorder(
@@ -71,11 +66,10 @@ void main() {
                     ),
                   ),
                 ),
+            primaryColor: kColorScheme.primary,
           ),
-          themeMode: ThemeMode.system,
-          //home: const ExpensesScreen(),
+          themeMode: ThemeMode.light,
           home: const TabsScreen(),
-          //home: const AccountsScreen(),
         ),
       ),
     );

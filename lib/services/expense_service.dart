@@ -1,5 +1,5 @@
 import 'package:expense_tracker/constants.dart';
-import 'package:expense_tracker/models/expese.dart';
+import 'package:expense_tracker/models/expense.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 

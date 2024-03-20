@@ -22,8 +22,14 @@ class _TabsScreenState extends State<TabsScreen> {
   }
 
   void _setScreen(int index) {
+    Widget route = const AccountsScreen();
     Navigator.of(context).pop();
-    _selectPage(index);
+    if (index == 2) {
+      route = const CategoriesScreen();
+    }
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (ctx) => route),
+    );
   }
 
   @override
@@ -33,19 +39,16 @@ class _TabsScreenState extends State<TabsScreen> {
     if (_selectedPageIndex == 1) {
       activePage = const ReportsScreen();
       activePageTitle = 'Reports';
-    } else if (_selectedPageIndex == 2) {
-      activePage = const AccountsScreen();
-      activePageTitle = 'Accounts';
-    } else if (_selectedPageIndex == 3) {
-      activePage = const CategoriesScreen();
-      activePageTitle = 'Categories';
     }
     return Scaffold(
       body: Center(
         child: activePage,
       ),
       appBar: AppBar(
-        title: Text(activePageTitle),
+        title: Text(activePageTitle,
+            style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                  color: Colors.white,
+                )),
       ),
       drawer: MainDrawer(
         onSelectScreen: _setScreen,
@@ -53,10 +56,10 @@ class _TabsScreenState extends State<TabsScreen> {
       bottomNavigationBar: BottomNavigationBar(
         onTap: _selectPage,
         backgroundColor: Theme.of(context).primaryColor,
-        unselectedItemColor: Colors.white,
-        selectedItemColor: Theme.of(context).secondaryHeaderColor,
+        unselectedItemColor: Colors.grey,
+        selectedItemColor: Colors.white,
         currentIndex: _selectedPageIndex,
-        type: BottomNavigationBarType.fixed,
+        //type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.attach_money),
@@ -65,14 +68,6 @@ class _TabsScreenState extends State<TabsScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
             label: 'Reports',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.card_membership),
-            label: 'Accounts',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.category),
-            label: 'Categories',
           ),
         ],
       ),

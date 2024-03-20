@@ -50,6 +50,32 @@ class _AccountFormState extends ConsumerState<AccountForm> {
     }
   }
 
+  _pickColor() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          titlePadding: const EdgeInsets.all(0),
+          contentPadding: const EdgeInsets.all(0),
+          content: SingleChildScrollView(
+            child: MaterialPicker(
+              pickerColor: Colors.white,
+              onColorChanged: (Color color) {
+                print(color);
+                _colorController.text = color.value.toRadixString(16);
+                this.color = color;
+                setState(() {});
+                Navigator.of(context).pop();
+              },
+              enableLabel: true,
+              portraitOnly: true,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -85,6 +111,7 @@ class _AccountFormState extends ConsumerState<AccountForm> {
       );
       if (accountId.isNotEmpty) {
         newAccount.id = accountId;
+        await AccountService().updateAccount(newAccount);
         ref.read(accountsProvider.notifier).updateAccount(newAccount);
       } else {
         final response = await AccountService().addAccount(newAccount);
@@ -135,14 +162,17 @@ class _AccountFormState extends ConsumerState<AccountForm> {
             Row(
               children: [
                 if (color != null)
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: color,
+                  GestureDetector(
+                    onTap: _pickColor,
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: color,
+                      ),
+                      margin: const EdgeInsets.only(right: 16),
                     ),
-                    margin: const EdgeInsets.only(right: 16),
                   ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -150,32 +180,7 @@ class _AccountFormState extends ConsumerState<AccountForm> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          titlePadding: const EdgeInsets.all(0),
-                          contentPadding: const EdgeInsets.all(0),
-                          content: SingleChildScrollView(
-                            child: MaterialPicker(
-                              pickerColor: Colors.white,
-                              onColorChanged: (Color color) {
-                                print(color);
-                                _colorController.text =
-                                    color.value.toRadixString(16);
-                                this.color = color;
-                                setState(() {});
-                                Navigator.of(context).pop();
-                              },
-                              enableLabel: true,
-                              portraitOnly: true,
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
+                  onPressed: _pickColor,
                   child: Text(color != null ? 'Change Color' : 'Select Color'),
                 ),
               ],
@@ -183,7 +188,9 @@ class _AccountFormState extends ConsumerState<AccountForm> {
             const SizedBox(height: 16),
             Row(
               children: [
-                if (icon != null) Icon(icon, size: 40),
+                if (icon != null)
+                  GestureDetector(
+                      onTap: _pickIcon, child: Icon(icon, size: 40)),
                 if (icon != null) const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: _pickIcon,

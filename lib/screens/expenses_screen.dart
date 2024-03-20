@@ -1,7 +1,7 @@
 import 'package:expense_tracker/services/expense_service.dart';
 import 'package:expense_tracker/widgets/expenses/expenses_list.dart';
 import 'package:expense_tracker/widgets/expenses/expense_form.dart';
-import 'package:expense_tracker/models/expese.dart';
+import 'package:expense_tracker/models/expense.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/providers/expenses.dart';

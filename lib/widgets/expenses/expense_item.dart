@@ -1,6 +1,5 @@
 import 'package:expense_tracker/helpers/helper.dart';
-import 'package:expense_tracker/models/expese.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:expense_tracker/models/expense.dart';
 import 'package:flutter/material.dart';
 
 class ExpenseItem extends StatelessWidget {
@@ -35,16 +34,16 @@ class ExpenseItem extends StatelessWidget {
                   children: [
                     Text(
                       expense.category!.name,
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                     ),
                     const Spacer(),
                     Text(
-                      '\$${expense.amount.toStringAsFixed(2)}',
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      Helper().formatCurrency(expense.amount),
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 86, 143, 7),
+                            color: const Color.fromARGB(255, 187, 14, 14),
                           ),
                     ),
                   ],
@@ -52,13 +51,21 @@ class ExpenseItem extends StatelessWidget {
                 Row(
                   children: [
                     Text(expense.notes,
-                        style: Theme.of(context).textTheme.bodySmall),
+                        style: Theme.of(context).textTheme.bodyMedium),
                     const Spacer(),
-                    Text(
-                      ' ${expense.account!.name.toUpperCase()}',
-                      style: const TextStyle(
-                        fontSize: 10.0,
-                      ),
+                    Row(
+                      children: [
+                        Icon(
+                          Helper().deserializeIconString(expense.account!.icon),
+                          size: 12,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          expense.account!.name,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
                     ),
                   ],
                 ),

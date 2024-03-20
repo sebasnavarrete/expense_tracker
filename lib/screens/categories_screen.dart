@@ -1,8 +1,8 @@
 import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/providers/categories.dart';
 import 'package:expense_tracker/services/category_service.dart';
-import 'package:expense_tracker/widgets/category_form.dart';
-import 'package:expense_tracker/widgets/category_grid.dart';
+import 'package:expense_tracker/widgets/categories/category_form.dart';
+import 'package:expense_tracker/widgets/categories/category_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -110,6 +110,9 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
       );
     }
     return Scaffold(
+        appBar: AppBar(
+          title: const Text('Categories'),
+        ),
         body: content,
         floatingActionButton: FloatingActionButton(
           onPressed: () => _openCategoryForm(null),

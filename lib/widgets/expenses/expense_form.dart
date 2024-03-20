@@ -10,7 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:expense_tracker/models/expese.dart';
+import 'package:expense_tracker/models/expense.dart';
 import 'package:expense_tracker/providers/expenses.dart';
 
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
@@ -53,12 +53,23 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
   }
 
   _submitData() async {
-    final enteredAmount =
-        double.tryParse(_amountController.text.replaceAll(',', '.'));
-    if (enteredAmount == null || enteredAmount <= 0) {
-      return _showDialog();
+    bool error = false;
+    String errorMessage = '';
+    final enteredAmount = double.tryParse(
+            _amountController.text.replaceAll('.', '').replaceAll(',', '.')) ??
+        0;
+    //Replace to fix the issue with the thousands dot and decimal comma
+    if (_selectedAccount == null) {
+      error = true;
+      errorMessage = 'Please select an account';
     }
-
+    if (_selectedCategory == null) {
+      error = true;
+      errorMessage = 'Please select a category';
+    }
+    if (error || !_formKey.currentState!.validate()) {
+      return _showDialog(errorMessage);
+    }
     Expense newExpense = Expense(
       amount: enteredAmount,
       date: _selectedDate!,
@@ -69,7 +80,7 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
 
     if (expenseId.isNotEmpty) {
       newExpense.id = expenseId;
-      final response = await ExpenseService().updateExpense(
+      await ExpenseService().updateExpense(
         newExpense,
       );
       ref.read(expensesProvider.notifier).updateExpense(newExpense);
@@ -85,17 +96,32 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
       return;
     }
 
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Expense saved',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+          ),
+        ),
+        duration: Duration(seconds: 3),
+      ),
+    );
+
     Navigator.of(context).pop();
   }
 
-  void _showDialog() {
+  void _showDialog(errorMessage) {
+    final msg =
+        errorMessage.isNotEmpty ? errorMessage : 'Please enter a valid amount';
     if (Platform.isIOS) {
       showCupertinoDialog(
           context: context,
           builder: (ctx) {
             return CupertinoAlertDialog(
-              title: const Text('Invalid amount'),
-              content: const Text('Please enter a valid amount'),
+              title: const Text('Invalid form'),
+              content: Text(msg),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -111,8 +137,8 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
           context: context,
           builder: (ctx) {
             return AlertDialog(
-              title: const Text('Invalid amount'),
-              content: const Text('Please enter a valid amount'),
+              title: const Text('Invalid form'),
+              content: Text(msg),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -158,6 +184,7 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
               children: [
                 Expanded(
                   child: TextFormField(
+                    autofocus: true,
                     inputFormatters: [
                       CurrencyTextInputFormatter(
                         locale: 'es',

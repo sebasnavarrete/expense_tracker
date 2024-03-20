@@ -1,5 +1,6 @@
+import 'package:expense_tracker/helpers/helper.dart';
 import 'package:expense_tracker/widgets/expenses/expense_item.dart';
-import 'package:expense_tracker/models/expese.dart';
+import 'package:expense_tracker/models/expense.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -58,7 +59,7 @@ class ExpensesList extends StatelessWidget {
                 margin: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color: Theme.of(context).colorScheme.surface,
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                 ),
                 child: Column(
                   children: [
@@ -68,22 +69,26 @@ class ExpensesList extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            '${getDayOfWeek(group.key)}',
+                            getDayOfWeek(group.key),
                             style: Theme.of(context)
                                 .textTheme
-                                .titleSmall!
+                                .titleLarge!
                                 .copyWith(
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 18,
                                 ),
                           ),
                           const Spacer(),
                           Text(
-                            '\$${getTotalExpenses(expensesG).toStringAsFixed(2)}',
+                            Helper()
+                                .formatCurrency(getTotalExpenses(expensesG)),
                             style: Theme.of(context)
                                 .textTheme
-                                .titleSmall!
+                                .titleLarge!
                                 .copyWith(
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: const Color.fromARGB(255, 187, 14, 14),
                                 ),
                           ),
                         ],
@@ -118,11 +123,11 @@ class ExpensesList extends StatelessWidget {
                           ),
                         ),
                       );
-                    }).toList(),
+                    }),
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),

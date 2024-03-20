@@ -1,4 +1,4 @@
-import 'package:expense_tracker/models/expese.dart';
+import 'package:expense_tracker/models/expense.dart';
 import 'package:expense_tracker/providers/accounts.dart';
 import 'package:expense_tracker/services/expense_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -11,21 +11,21 @@ class MainDrawer extends StatelessWidget {
       child: Column(
         children: [
           AppBar(
-            title: const Text('Expense Tracker'),
+            title: const Text('Menu'),
             automaticallyImplyLeading: false,
           ),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.attach_money),
-            title: const Text('Expenses'),
+            leading: const Icon(Icons.credit_card),
+            title: const Text('Accounts'),
             onTap: () {
-              onSelectScreen(0);
+              onSelectScreen(1);
             },
           ),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.account_balance_wallet),
-            title: const Text('Accounts'),
+            leading: const Icon(Icons.category),
+            title: const Text('Categories'),
             onTap: () {
               onSelectScreen(2);
             },
