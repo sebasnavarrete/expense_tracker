@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ui';
 
 import 'package:expense_tracker/constants.dart';
 import 'package:http/http.dart' as http;
@@ -14,7 +13,6 @@ class CategoryService {
     try {
       final url = Uri.https(backendUrl, 'categories.json');
       final response = await http.get(url);
-      print(response.body);
       if (response.statusCode != 200) {
         throw Exception('Failed to load categories');
       }
@@ -35,7 +33,6 @@ class CategoryService {
       }
       return loadedCategories;
     } catch (e) {
-      print(e);
       return [];
     }
   }

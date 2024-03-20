@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:expense_tracker/data/dummy_data.dart';
 import 'package:expense_tracker/models/account.dart';
 import 'package:expense_tracker/models/category.dart';
+import 'package:expense_tracker/providers/accounts.dart';
 import 'package:expense_tracker/providers/categories.dart';
 import 'package:expense_tracker/services/expense_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -146,8 +146,8 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
 
   @override
   Widget build(BuildContext context) {
-    //list of categories
     final categories = ref.watch(categoriesProvider);
+    final accounts = ref.watch(accountsProvider);
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Form(
@@ -277,7 +277,7 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
                     isExpanded: true,
                     value: _selectedAccount,
                     hint: const Text('Account'),
-                    items: dummyAccounts
+                    items: accounts
                         .map(
                           (account) => DropdownMenuItem(
                             value: account,

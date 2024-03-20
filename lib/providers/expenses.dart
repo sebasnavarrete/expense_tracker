@@ -1,4 +1,5 @@
 import 'package:expense_tracker/models/expese.dart';
+import 'package:expense_tracker/providers/accounts.dart';
 import 'package:expense_tracker/services/expense_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/models/account.dart';
@@ -12,21 +13,37 @@ class ExpensesNotifier extends StateNotifier<List<Expense>> {
   final ref;
 
   Future<void> getExpenses() async {
-    final getData = await ExpenseService().getExpenses();
-    final categories = ref.read(categoriesProvider);
+    bool error = false;
+    final getData = await ExpenseService().getExpenses().catchError((e) {
+      error = true;
+      return print('error: $e');
+    });
+    if (error) return;
+    var categories = ref.read(categoriesProvider);
+    var accounts = ref.read(accountsProvider);
+    if (categories.isEmpty) {
+      await ref.read(categoriesProvider.notifier).getCategories();
+      categories = ref.read(categoriesProvider);
+    }
+    if (accounts.isEmpty) {
+      await ref.read(accountsProvider.notifier).getAccounts();
+      accounts = ref.read(accountsProvider);
+    }
     final List<Expense> loadedExpenses = [];
-    for (final item in getData.entries) {
-      loadedExpenses.add(
-        Expense(
-          id: item.key,
-          amount: item.value['amount'],
-          date: DateTime.parse(item.value['date']),
-          category:
-              CategoryList(categories).categoryById(item.value['category']),
-          account: accountById(item.value['account']),
-          notes: item.value['notes'] ?? '',
-        ),
-      );
+    if (getData.entries.isNotEmpty) {
+      for (final item in getData.entries) {
+        loadedExpenses.add(
+          Expense(
+            id: item.key,
+            amount: item.value['amount'],
+            date: DateTime.parse(item.value['date']),
+            category:
+                CategoryList(categories).categoryById(item.value['category']),
+            account: AccountList(accounts).accountById(item.value['account']),
+            notes: item.value['notes'] ?? '',
+          ),
+        );
+      }
     }
     state = loadedExpenses;
   }

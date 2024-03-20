@@ -95,6 +95,7 @@ class ExpensesList extends StatelessWidget {
                     ...expensesG.map((expense) {
                       return Dismissible(
                         key: ValueKey(expense.id),
+                        direction: DismissDirection.endToStart,
                         background: Container(
                           color: Theme.of(context).colorScheme.error,
                           alignment: Alignment.centerRight,

@@ -1,8 +1,9 @@
+import 'package:expense_tracker/helpers/helper.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:flutter/material.dart';
 
 class CategoryGridItem extends StatelessWidget {
-  const 1CategoryGridItem({
+  const CategoryGridItem({
     super.key,
     required this.category,
     required this.onRemoveCategory,
@@ -16,6 +17,7 @@ class CategoryGridItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dismissible(
+      direction: DismissDirection.endToStart,
       key: ValueKey(category.id),
       background: Container(
         color: Theme.of(context).colorScheme.error,
@@ -54,7 +56,7 @@ class CategoryGridItem extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               Icon(
-                deserializeIconString(category.icon),
+                Helper().deserializeIconString(category.icon),
                 color: Colors.white,
                 size: 40,
               ),

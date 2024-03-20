@@ -1,8 +1,4 @@
-import 'package:expense_tracker/models/account.dart';
-import 'package:expense_tracker/models/category.dart';
-import 'package:expense_tracker/providers/categories.dart';
 import 'package:expense_tracker/services/expense_service.dart';
-import 'package:expense_tracker/widgets/chart/chart.dart';
 import 'package:expense_tracker/widgets/expenses/expenses_list.dart';
 import 'package:expense_tracker/widgets/expenses/expense_form.dart';
 import 'package:expense_tracker/models/expese.dart';
@@ -22,7 +18,6 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _expensesFuture = ref.read(expensesProvider.notifier).getExpenses();
   }

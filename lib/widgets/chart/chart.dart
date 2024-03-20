@@ -1,3 +1,4 @@
+import 'package:expense_tracker/helpers/helper.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/widgets/chart/chart_bar.dart';
 import 'package:flutter/material.dart';
@@ -94,7 +95,7 @@ class Chart extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Icon(
-                        deserializeIconString(bucket.category!.icon),
+                        Helper().deserializeIconString(bucket.category!.icon),
                         color: isDarkMode
                             ? Theme.of(context).colorScheme.secondary
                             : Theme.of(context)

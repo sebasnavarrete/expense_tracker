@@ -32,9 +32,9 @@ class ExpenseBucket {
     required this.expenses,
   });
 
-  ExpenseBucket.forCategory(List<Expense> allExpenses, this.category)
+  /*ExpenseBucket.forCategory(List<Expense> allExpenses, this.category)
       : expenses = allExpenses.where((e) => e.category == category).toList(),
-        account = accountByType(AccountType.other);
+        account = accountByType(AccountType.other);*/
 
   /*ExpenseBucket.forAccount(List<Expense> allExpenses, this.account)
       : expenses = allExpenses.where((e) => e.account == account).toList(),

@@ -1,33 +1,24 @@
-import 'package:expense_tracker/data/dummy_data.dart';
-import 'package:flutter/material.dart';
-
-enum AccountType {
-  cash,
-  creditCard,
-  bankAccount,
-  other,
-}
-
 class Account {
-  const Account({
-    required this.id,
+  Account({
+    this.id = '',
     required this.name,
-    required this.accountType,
-    this.color = Colors.orange,
+    required this.icon,
+    required this.color,
   });
 
-  final String id;
+  String id;
   final String name;
-  final AccountType accountType;
-  final Color color;
+  final String icon;
+  final String color;
 }
 
-accountByType(AccountType accountType) {
-  const accounts = dummyAccounts;
-  return accounts.firstWhere((account) => account.accountType == accountType);
-}
+class AccountList {
+  AccountList(this.accounts);
 
-accountById(String accountId) {
-  const accounts = dummyAccounts;
-  return accounts.firstWhere((account) => account.id == accountId);
+  final List<Account> accounts;
+
+  Account accountById(String id) {
+    return accounts.firstWhere((c) => c.id == id,
+        orElse: () => Account(name: '', icon: '', color: ''));
+  }
 }

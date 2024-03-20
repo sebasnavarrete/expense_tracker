@@ -3,9 +3,6 @@ import 'package:expense_tracker/models/expese.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:expense_tracker/models/account.dart';
-import 'package:expense_tracker/models/category.dart';
-
 class ExpenseService {
   static const backendUrl = Constants.backendUrl;
 
@@ -13,18 +10,13 @@ class ExpenseService {
     try {
       final url = Uri.https(backendUrl, 'expenses.json');
       final response = await http.get(url);
-      if (response.statusCode != 200) {
-        throw Exception('Failed to load expenses');
+      Map<String, dynamic> expensesData = {};
+      if (response.statusCode == 200 && response.body != 'null') {
+        expensesData = jsonDecode(response.body);
       }
-      print(response.body);
-      if (response.body == 'null') {
-        return [];
-      }
-      final Map<String, dynamic> expensesData = jsonDecode(response.body);
       return expensesData;
     } catch (e) {
-      print(e);
-      return [];
+      throw Exception('Failed to load expenses');
     }
   }
 

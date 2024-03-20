@@ -1,4 +1,4 @@
-import 'package:expense_tracker/models/category.dart';
+import 'package:expense_tracker/helpers/helper.dart';
 import 'package:expense_tracker/models/expese.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +22,7 @@ class ExpenseItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
-              deserializeIconString(expense.category!.icon),
+              Helper().deserializeIconString(expense.category!.icon),
               color: Theme.of(context).colorScheme.onPrimary,
               size: 16,
             ),

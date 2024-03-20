@@ -18,7 +18,6 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _categoriesFuture = ref.read(categoriesProvider.notifier).getCategories();
   }
