@@ -22,6 +22,7 @@ void main() {
       ProviderScope(
         child: MaterialApp(
           darkTheme: ThemeData.dark().copyWith(
+            primaryColor: kDarkColorScheme.primary,
             colorScheme: kDarkColorScheme,
             appBarTheme: const AppBarTheme().copyWith(
               backgroundColor: kDarkColorScheme.onPrimaryContainer,
@@ -36,14 +37,23 @@ void main() {
                 backgroundColor: kDarkColorScheme.primaryContainer,
               ),
             ),
-            textTheme: GoogleFonts.ibmPlexSansTextTheme().copyWith(
-              titleLarge: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.normal,
+            textTheme: GoogleFonts.ibmPlexSansTextTheme(),
+            dropdownMenuTheme: ThemeData().dropdownMenuTheme.copyWith(
+                  inputDecorationTheme: InputDecorationTheme(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+            snackBarTheme: const SnackBarThemeData().copyWith(
+              elevation: 20,
+              contentTextStyle: const TextStyle(
+                fontSize: 14,
               ),
             ),
           ),
           theme: ThemeData().copyWith(
+            primaryColor: kColorScheme.primary,
             colorScheme: kColorScheme,
             appBarTheme: const AppBarTheme().copyWith(
               backgroundColor: kColorScheme.onPrimaryContainer,
@@ -66,7 +76,12 @@ void main() {
                     ),
                   ),
                 ),
-            primaryColor: kColorScheme.primary,
+            snackBarTheme: const SnackBarThemeData().copyWith(
+              elevation: 20,
+              contentTextStyle: const TextStyle(
+                fontSize: 14,
+              ),
+            ),
           ),
           themeMode: ThemeMode.light,
           home: const TabsScreen(),

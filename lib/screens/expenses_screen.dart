@@ -39,7 +39,9 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
     ScaffoldMessenger.of(context)
         .showSnackBar(
           SnackBar(
-            content: const Text('Expense removed'),
+            content: const Text(
+              'Expense removed',
+            ),
             duration: const Duration(seconds: 5),
             action: SnackBarAction(
               label: 'Undo',

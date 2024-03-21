@@ -460,6 +460,7 @@
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TREE_SHAKE_ICONS = false;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Profile;
@@ -482,6 +483,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				TREE_SHAKE_ICONS = false;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Profile;
@@ -591,6 +593,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TREE_SHAKE_ICONS = false;
 			};
 			name = Debug;
 		};
@@ -645,6 +648,7 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TREE_SHAKE_ICONS = false;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -668,6 +672,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				TREE_SHAKE_ICONS = false;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -690,6 +695,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				TREE_SHAKE_ICONS = false;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
