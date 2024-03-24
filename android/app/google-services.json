@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "432445650049",
+    "firebase_url": "https://expenses-tracker-kuery-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "expenses-tracker-kuery",
+    "storage_bucket": "expenses-tracker-kuery.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:432445650049:android:5304f370b3ae0babc54980",
+        "android_client_info": {
+          "package_name": "com.example.expense_tracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyAm8XxvOBFtAnEF7VQYwSUcFgxu2bJZc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

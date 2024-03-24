@@ -1,20 +1,19 @@
-import 'package:expense_tracker/constants.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_tracker/models/expense.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:sentry/sentry.dart';
 
 class ExpenseService {
-  static const backendUrl = Constants.backendUrl;
+  User? user = FirebaseAuth.instance.currentUser;
 
   Future<dynamic> getExpenses() async {
     try {
-      final url = Uri.https(backendUrl, 'expenses.json');
-      final response = await http.get(url);
-      Map<String, dynamic> expensesData = {};
-      if (response.statusCode == 200 && response.body != 'null') {
-        expensesData = jsonDecode(response.body);
-      }
+      final expensesData = await FirebaseFirestore.instance
+          .collection(user!.uid)
+          .doc('expenses')
+          .collection('expenses')
+          .get();
       return expensesData;
     } catch (e, stackTrace) {
       await Sentry.captureException(
@@ -25,38 +24,70 @@ class ExpenseService {
   }
 
   Future<http.Response> addExpense(Expense expense) async {
-    final url = Uri.https(backendUrl, 'expenses.json');
-    final response = await http.post(
-      url,
-      body: jsonEncode({
+    try {
+      final process = await FirebaseFirestore.instance
+          .collection(user!.uid)
+          .doc('expenses')
+          .collection('expenses')
+          .add({
         'amount': expense.amount,
         'date': expense.date.toIso8601String(),
         'category': expense.category!.id,
         'account': expense.account!.id,
         'notes': expense.notes,
-      }),
-    );
-    return response;
+      });
+
+      return http.Response(process.id, 200);
+    } catch (e, stackTrace) {
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
+      return http.Response('Failed to add expense', 500);
+    }
   }
 
   Future<http.Response> updateExpense(Expense expense) async {
-    final url = Uri.https(backendUrl, 'expenses/${expense.id}.json');
-    final response = await http.patch(
-      url,
-      body: jsonEncode({
+    try {
+      await FirebaseFirestore.instance
+          .collection(user!.uid)
+          .doc('expenses')
+          .collection('expenses')
+          .doc(expense.id)
+          .update({
         'amount': expense.amount,
         'date': expense.date.toIso8601String(),
         'category': expense.category!.id,
         'account': expense.account!.id,
         'notes': expense.notes,
-      }),
-    );
-    return response;
+      });
+
+      return http.Response('Expense updated', 200);
+    } catch (e, stackTrace) {
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
+      return http.Response('Failed to update expense', 500);
+    }
   }
 
   Future<http.Response> removeExpense(Expense expense) async {
-    final url = Uri.https(backendUrl, 'expenses/${expense.id}.json');
-    final response = await http.delete(url);
-    return response;
+    try {
+      await FirebaseFirestore.instance
+          .collection(user!.uid)
+          .doc('expenses')
+          .collection('expenses')
+          .doc(expense.id)
+          .delete();
+
+      return http.Response('Expense removed', 200);
+    } catch (e, stackTrace) {
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
+      return http.Response('Failed to remove expense', 500);
+    }
   }
 }

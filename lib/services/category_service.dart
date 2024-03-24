@@ -1,33 +1,31 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sentry/sentry.dart';
-import 'package:expense_tracker/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:expense_tracker/models/category.dart';
 
 // category service class
 class CategoryService {
-  static const backendUrl = Constants.backendUrl;
+  User? user = FirebaseAuth.instance.currentUser;
 
   // get categories
   Future<dynamic> getCategories() async {
     try {
-      final url = Uri.https(backendUrl, 'categories.json');
-      final response = await http.get(url);
-      if (response.statusCode != 200) {
-        throw Exception('Failed to load categories');
-      }
-      if (response.body == 'null') {
-        return [];
-      }
-      final Map<String, dynamic> categoriesData = jsonDecode(response.body);
+      final categoryData = await FirebaseFirestore.instance
+          .collection(user!.uid)
+          .doc('expenses')
+          .collection('categories')
+          .get();
       final List<Category> loadedCategories = [];
-      for (final item in categoriesData.entries) {
+      for (final item in categoryData.docs) {
+        final data = item.data();
         loadedCategories.add(
           Category(
-            id: item.key,
-            name: item.value['name'],
-            icon: item.value['icon'],
-            color: item.value['color'],
+            id: item.id,
+            name: data['name'],
+            icon: data['icon'],
+            color: data['color'],
           ),
         );
       }
@@ -44,21 +42,16 @@ class CategoryService {
   // add category
   Future<http.Response> addCategory(Category category) async {
     try {
-      final url = Uri.https(backendUrl, 'categories.json');
-      final response = await http.post(
-        url,
-        body: jsonEncode({
-          'name': category.name,
-          'icon': category.icon,
-          'color': category.color,
-        }),
-      );
-      //print('response.body ${response.body}');
-
-      if (response.statusCode != 200) {
-        throw Exception('Failed to add category');
-      }
-      return response;
+      final process = await FirebaseFirestore.instance
+          .collection(user!.uid)
+          .doc('expenses')
+          .collection('categories')
+          .add({
+        'name': category.name,
+        'icon': category.icon,
+        'color': category.color,
+      });
+      return http.Response(process.id, 200);
     } catch (e, stackTrace) {
       await Sentry.captureException(
         e,
@@ -71,20 +64,18 @@ class CategoryService {
   // update category
   Future<http.Response> updateCategory(Category category) async {
     try {
-      final url = Uri.https(backendUrl, 'categories/${category.id}.json');
-      final response = await http.patch(
-        url,
-        body: jsonEncode({
-          'name': category.name,
-          'icon': category.icon,
-          'color': category.color,
-        }),
-      );
-      //print('response.body ${response.body}');
-      if (response.statusCode != 200) {
-        throw Exception('Failed to update category');
-      }
-      return response;
+      await FirebaseFirestore.instance
+          .collection(user!.uid)
+          .doc('expenses')
+          .collection('categories')
+          .doc(category.id)
+          .update({
+        'name': category.name,
+        'icon': category.icon,
+        'color': category.color,
+      });
+
+      return http.Response('Category updated', 200);
     } catch (e, stackTrace) {
       await Sentry.captureException(
         e,
@@ -97,13 +88,14 @@ class CategoryService {
   // remove category
   Future<http.Response> removeCategory(Category category) async {
     try {
-      final url = Uri.https(backendUrl, 'categories/${category.id}.json');
-      final response = await http.delete(url);
-      //print('response.body ${response.body}');
-      if (response.statusCode != 200) {
-        throw Exception('Failed to remove category');
-      }
-      return response;
+      await FirebaseFirestore.instance
+          .collection(user!.uid)
+          .doc('expenses')
+          .collection('categories')
+          .doc(category.id)
+          .delete();
+
+      return http.Response('Category removed', 200);
     } catch (e, stackTrace) {
       await Sentry.captureException(
         e,

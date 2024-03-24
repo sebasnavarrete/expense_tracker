@@ -30,6 +30,8 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
   IconData? icon;
   Color? color;
 
+  var saving = false;
+
   _pickIcon() async {
     icon = await showIconPicker(
       context,
@@ -92,6 +94,9 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
   }
 
   void _submitForm() async {
+    setState(() {
+      saving = true;
+    });
     bool error = false;
     String errorMessage = '';
     if (_colorController.text.isEmpty) {
@@ -114,9 +119,12 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
         ref.read(categoriesProvider.notifier).updateCategory(newCategory);
       } else {
         final response = await CategoryService().addCategory(newCategory);
-        newCategory.id = jsonDecode(response.body)['name'];
+        newCategory.id = response.body;
         ref.read(categoriesProvider.notifier).addCategory(newCategory);
       }
+      setState(() {
+        saving = false;
+      });
       Navigator.of(context).pop();
     } else if (errorMessage.isNotEmpty) {
       showDialog(
@@ -206,18 +214,26 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
             if (Platform.isIOS)
               CupertinoButton.filled(
                 onPressed: _submitForm,
-                child: const Text(
-                  'Save category',
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: (saving)
+                    ? const CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      )
+                    : const Text(
+                        'Save category',
+                        style: TextStyle(color: Colors.white),
+                      ),
               )
             else
               ElevatedButton(
                 onPressed: _submitForm,
-                child: const Text(
-                  'Save category',
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: (saving)
+                    ? const CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      )
+                    : const Text(
+                        'Save category',
+                        style: TextStyle(color: Colors.white),
+                      ),
               ),
           ],
         ),

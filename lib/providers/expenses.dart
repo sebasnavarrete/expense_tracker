@@ -14,7 +14,7 @@ class ExpensesNotifier extends StateNotifier<List<Expense>> {
 
   Future<void> getExpenses() async {
     bool error = false;
-    final getData = await ExpenseService().getExpenses().catchError((e) {
+    final expensesData = await ExpenseService().getExpenses().catchError((e) {
       error = true;
       return print('error: $e');
     });
@@ -30,17 +30,17 @@ class ExpensesNotifier extends StateNotifier<List<Expense>> {
       accounts = ref.read(accountsProvider);
     }
     final List<Expense> loadedExpenses = [];
-    if (getData.entries.isNotEmpty) {
-      for (final item in getData.entries) {
+    final expenses = expensesData.docs;
+    if (expenses.isNotEmpty) {
+      for (final item in expenses) {
         loadedExpenses.add(
           Expense(
-            id: item.key,
-            amount: item.value['amount'],
-            date: DateTime.parse(item.value['date']),
-            category:
-                CategoryList(categories).categoryById(item.value['category']),
-            account: AccountList(accounts).accountById(item.value['account']),
-            notes: item.value['notes'] ?? '',
+            id: item.id,
+            amount: item['amount'],
+            date: DateTime.parse(item['date']),
+            category: CategoryList(categories).categoryById(item['category']),
+            account: AccountList(accounts).accountById(item['account']),
+            notes: item['notes'] ?? '',
           ),
         );
       }

@@ -1,33 +1,29 @@
-import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sentry/sentry.dart';
-import 'package:expense_tracker/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:expense_tracker/models/account.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AccountService {
-  static const backendUrl = Constants.backendUrl;
+  User? user = FirebaseAuth.instance.currentUser;
 
   // get accounts
   Future<dynamic> getAccounts() async {
     try {
-      final url = Uri.https(backendUrl, 'accounts.json');
-      final response = await http.get(url);
-      //print(response.body);
-      if (response.statusCode != 200) {
-        throw Exception('Failed to load accounts');
-      }
-      if (response.body == 'null') {
-        return [];
-      }
-      final Map<String, dynamic> accountsData = jsonDecode(response.body);
+      final accountsData = await FirebaseFirestore.instance
+          .collection(user!.uid)
+          .doc('expenses')
+          .collection('accounts')
+          .get();
       final List<Account> loadedAccounts = [];
-      for (final item in accountsData.entries) {
+      for (final item in accountsData.docs) {
+        final data = item.data();
         loadedAccounts.add(
           Account(
-            id: item.key,
-            name: item.value['name'],
-            icon: item.value['icon'],
-            color: item.value['color'],
+            id: item.id,
+            name: data['name'],
+            icon: data['icon'],
+            color: data['color'],
           ),
         );
       }
@@ -44,21 +40,16 @@ class AccountService {
   // add account
   Future<http.Response> addAccount(Account account) async {
     try {
-      final url = Uri.https(backendUrl, 'accounts.json');
-      final response = await http.post(
-        url,
-        body: jsonEncode({
-          'name': account.name,
-          'icon': account.icon,
-          'color': account.color,
-        }),
-      );
-      //print('response.body ${response.body}');
-
-      if (response.statusCode != 200) {
-        throw Exception('Failed to add account');
-      }
-      return response;
+      final process = await FirebaseFirestore.instance
+          .collection(user!.uid)
+          .doc('expenses')
+          .collection('accounts')
+          .add({
+        'name': account.name,
+        'icon': account.icon,
+        'color': account.color,
+      });
+      return http.Response(process.id, 200);
     } catch (e, stackTrace) {
       await Sentry.captureException(
         e,
@@ -71,21 +62,18 @@ class AccountService {
   // update account
   Future<http.Response> updateAccount(Account account) async {
     try {
-      final url = Uri.https(backendUrl, 'accounts/${account.id}.json');
-      final response = await http.patch(
-        url,
-        body: jsonEncode({
-          'name': account.name,
-          'icon': account.icon,
-          'color': account.color,
-        }),
-      );
-      //print('response.body ${response.body}');
+      await FirebaseFirestore.instance
+          .collection(user!.uid)
+          .doc('expenses')
+          .collection('accounts')
+          .doc(account.id)
+          .update({
+        'name': account.name,
+        'icon': account.icon,
+        'color': account.color,
+      });
 
-      if (response.statusCode != 200) {
-        throw Exception('Failed to update account');
-      }
-      return response;
+      return http.Response('Account updated', 200);
     } catch (e, stackTrace) {
       await Sentry.captureException(
         e,
@@ -98,14 +86,14 @@ class AccountService {
   // remove account
   Future<http.Response> removeAccount(Account account) async {
     try {
-      final url = Uri.https(backendUrl, 'accounts/${account.id}.json');
-      final response = await http.delete(url);
-      //print('response.body ${response.body}');
+      await FirebaseFirestore.instance
+          .collection(user!.uid)
+          .doc('expenses')
+          .collection('accounts')
+          .doc(account.id)
+          .delete();
 
-      if (response.statusCode != 200) {
-        throw Exception('Failed to remove account');
-      }
-      return response;
+      return http.Response('Account removed', 200);
     } catch (e, stackTrace) {
       await Sentry.captureException(
         e,

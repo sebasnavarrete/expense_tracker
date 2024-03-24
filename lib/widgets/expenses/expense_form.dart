@@ -39,6 +39,7 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
   Category? _selectedCategory;
   Account? _selectedAccount;
   DateTime? _selectedDate = DateTime.now();
+  var saving = false;
 
   _presentDatePicker() async {
     final now = DateTime.now();
@@ -54,6 +55,9 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
   }
 
   _submitData() async {
+    setState(() {
+      saving = true;
+    });
     bool error = false;
     String errorMessage = '';
     final enteredAmount = double.tryParse(
@@ -89,10 +93,12 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
       final response = await ExpenseService().addExpense(
         newExpense,
       );
-      newExpense.id = jsonDecode(response.body)['name'];
+      newExpense.id = response.body;
       ref.read(expensesProvider.notifier).addExpense(newExpense);
     }
-
+    setState(() {
+      saving = false;
+    });
     if (!context.mounted) {
       return;
     }
@@ -388,24 +394,32 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
                 onPressed: () {
                   _submitData();
                 },
-                child: const Text(
-                  'Save Expense',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
+                child: (saving)
+                    ? const CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      )
+                    : const Text(
+                        'Save Expense',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
               )
             else
               ElevatedButton(
                 onPressed: () {
                   _submitData();
                 },
-                child: const Text(
-                  'Save Expense',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
+                child: (saving)
+                    ? const CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      )
+                    : const Text(
+                        'Save Expense',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
               )
           ],
         ),

@@ -30,6 +30,8 @@ class _AccountFormState extends ConsumerState<AccountForm> {
   IconData? icon;
   Color? color;
 
+  var saving = false;
+
   _pickIcon() async {
     icon = await showIconPicker(
       context,
@@ -92,6 +94,9 @@ class _AccountFormState extends ConsumerState<AccountForm> {
   }
 
   void _submitForm() async {
+    setState(() {
+      saving = true;
+    });
     bool error = false;
     String errorMessage = '';
     if (_colorController.text.isEmpty) {
@@ -114,9 +119,12 @@ class _AccountFormState extends ConsumerState<AccountForm> {
         ref.read(accountsProvider.notifier).updateAccount(newAccount);
       } else {
         final response = await AccountService().addAccount(newAccount);
-        newAccount.id = jsonDecode(response.body)['name'];
+        newAccount.id = response.body;
         ref.read(accountsProvider.notifier).addAccount(newAccount);
       }
+      setState(() {
+        saving = false;
+      });
       Navigator.of(context).pop();
     } else if (errorMessage.isNotEmpty) {
       showDialog(
@@ -206,18 +214,26 @@ class _AccountFormState extends ConsumerState<AccountForm> {
             if (Platform.isIOS)
               CupertinoButton.filled(
                 onPressed: _submitForm,
-                child: const Text(
-                  'Save account',
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: (saving)
+                    ? const CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      )
+                    : const Text(
+                        'Save account',
+                        style: TextStyle(color: Colors.white),
+                      ),
               )
             else
               ElevatedButton(
                 onPressed: _submitForm,
-                child: const Text(
-                  'Save account',
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: (saving)
+                    ? const CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      )
+                    : const Text(
+                        'Save account',
+                        style: TextStyle(color: Colors.white),
+                      ),
               ),
           ],
         ),

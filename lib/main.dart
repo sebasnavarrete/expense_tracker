@@ -1,10 +1,14 @@
 import 'package:expense_tracker/screens/auth_screen.dart';
+import 'package:expense_tracker/screens/splash.dart';
 import 'package:expense_tracker/screens/tabs_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 // Color matri: #221060
 var kColorScheme = ColorScheme.fromSeed(
@@ -22,6 +26,10 @@ var kColorScheme = ColorScheme.fromSeed(
 );
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await SentryFlutter.init(
     (options) {
       options.dsn =
@@ -74,8 +82,19 @@ Future<void> main() async {
             ),
           ),
           themeMode: ThemeMode.light,
-          home: const TabsScreen(),
-          //home: const AuthScreen(),
+          //home: const TabsScreen(),
+          home: StreamBuilder(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (ctx, userSnapshot) {
+              if (userSnapshot.connectionState == ConnectionState.waiting) {
+                return const SplashScreen();
+              }
+              if (userSnapshot.hasData) {
+                return const TabsScreen();
+              }
+              return const AuthScreen();
+            },
+          ),
         ),
       ),
     ),
