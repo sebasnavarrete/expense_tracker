@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:expense_tracker/helpers/helper.dart';
 import 'package:expense_tracker/models/account.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/providers/accounts.dart';
@@ -211,42 +212,6 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
               height: 16,
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.all(0),
-                      alignment: Alignment.centerLeft,
-                    ),
-                    onPressed: _presentDatePicker,
-                    child: Text(
-                      textAlign: TextAlign.left,
-                      _selectedDate == null
-                          ? 'Select date'
-                          : 'Date: ${dateFormater.format(_selectedDate!)}',
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 16,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: IconButton(
-                    onPressed: _presentDatePicker,
-                    icon: const Icon(Icons.calendar_today),
-                    alignment: Alignment.centerRight,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 16,
-            ),
-            Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -267,8 +232,28 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
                         .map(
                           (category) => DropdownMenuItem(
                             value: category,
-                            child: Text(
-                              category.name.toUpperCase(),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                                  decoration: BoxDecoration(
+                                    color: Color(
+                                        int.parse(category.color, radix: 16)),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Icon(
+                                    Helper()
+                                        .deserializeIconString(category.icon),
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  category.name.toUpperCase(),
+                                ),
+                              ],
                             ),
                           ),
                         )
@@ -308,8 +293,28 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
                         .map(
                           (account) => DropdownMenuItem(
                             value: account,
-                            child: Text(
-                              account.name.toUpperCase(),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                                  decoration: BoxDecoration(
+                                    color: Color(
+                                        int.parse(account.color, radix: 16)),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Icon(
+                                    Helper()
+                                        .deserializeIconString(account.icon),
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  account.name.toUpperCase(),
+                                ),
+                              ],
                             ),
                           ),
                         )
@@ -340,6 +345,42 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
               ],
             ),
             const SizedBox(
+              height: 16,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.all(0),
+                      alignment: Alignment.centerLeft,
+                    ),
+                    onPressed: _presentDatePicker,
+                    child: Text(
+                      textAlign: TextAlign.left,
+                      _selectedDate == null
+                          ? 'Select date'
+                          : 'Date: ${dateFormater.format(_selectedDate!)}',
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: IconButton(
+                    onPressed: _presentDatePicker,
+                    icon: const Icon(Icons.calendar_today),
+                    alignment: Alignment.centerRight,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(
               height: 32,
             ),
             if (Platform.isIOS)
@@ -349,6 +390,9 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
                 },
                 child: const Text(
                   'Save Expense',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
                 ),
               )
             else
@@ -358,6 +402,9 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
                 },
                 child: const Text(
                   'Save Expense',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
                 ),
               )
           ],

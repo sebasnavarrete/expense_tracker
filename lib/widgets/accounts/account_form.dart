@@ -61,7 +61,6 @@ class _AccountFormState extends ConsumerState<AccountForm> {
             child: MaterialPicker(
               pickerColor: Colors.white,
               onColorChanged: (Color color) {
-                print(color);
                 _colorController.text = color.value.toRadixString(16);
                 this.color = color;
                 setState(() {});
@@ -207,12 +206,18 @@ class _AccountFormState extends ConsumerState<AccountForm> {
             if (Platform.isIOS)
               CupertinoButton.filled(
                 onPressed: _submitForm,
-                child: const Text('Save account'),
+                child: const Text(
+                  'Save account',
+                  style: TextStyle(color: Colors.white),
+                ),
               )
             else
               ElevatedButton(
                 onPressed: _submitForm,
-                child: const Text('Save account'),
+                child: const Text(
+                  'Save account',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
           ],
         ),

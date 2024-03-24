@@ -45,10 +45,7 @@ class _TabsScreenState extends State<TabsScreen> {
         child: activePage,
       ),
       appBar: AppBar(
-        title: Text(activePageTitle,
-            style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                  color: Colors.white,
-                )),
+        title: Text(activePageTitle),
       ),
       drawer: MainDrawer(
         onSelectScreen: _setScreen,

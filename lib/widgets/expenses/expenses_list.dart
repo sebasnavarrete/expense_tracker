@@ -88,7 +88,7 @@ class ExpensesList extends StatelessWidget {
                                 .copyWith(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18,
-                                  color: const Color.fromARGB(255, 187, 14, 14),
+                                  color: Theme.of(context).colorScheme.tertiary,
                                 ),
                           ),
                         ],

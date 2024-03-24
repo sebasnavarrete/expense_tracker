@@ -11,8 +11,14 @@ class MainDrawer extends StatelessWidget {
       child: Column(
         children: [
           AppBar(
-            title: const Text('Menu'),
+            title: Text(
+              'Menu',
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                    color: Colors.white,
+                  ),
+            ),
             automaticallyImplyLeading: false,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
           const Divider(),
           ListTile(

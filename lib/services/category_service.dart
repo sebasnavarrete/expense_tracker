@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:sentry/sentry.dart';
 import 'package:expense_tracker/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:expense_tracker/models/category.dart';
@@ -9,7 +9,7 @@ class CategoryService {
   static const backendUrl = Constants.backendUrl;
 
   // get categories
-  Future<List<Category>> getCategories() async {
+  Future<dynamic> getCategories() async {
     try {
       final url = Uri.https(backendUrl, 'categories.json');
       final response = await http.get(url);
@@ -32,8 +32,12 @@ class CategoryService {
         );
       }
       return loadedCategories;
-    } catch (e) {
-      return [];
+    } catch (e, stackTrace) {
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
+      return http.Response('Failed to get categories', 500);
     }
   }
 
@@ -49,14 +53,17 @@ class CategoryService {
           'color': category.color,
         }),
       );
-      print('response.body ${response.body}');
+      //print('response.body ${response.body}');
 
       if (response.statusCode != 200) {
         throw Exception('Failed to add category');
       }
       return response;
-    } catch (e) {
-      print(e);
+    } catch (e, stackTrace) {
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
       return http.Response('Failed to add category', 500);
     }
   }
@@ -73,14 +80,17 @@ class CategoryService {
           'color': category.color,
         }),
       );
-      print('response.body ${response.body}');
+      //print('response.body ${response.body}');
       if (response.statusCode != 200) {
         throw Exception('Failed to update category');
       }
       return response;
-    } catch (e) {
-      print(e);
-      return http.Response('Failed to update category', 500);
+    } catch (e, stackTrace) {
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
+      return http.Response('Failed to remove category', 500);
     }
   }
 
@@ -89,13 +99,16 @@ class CategoryService {
     try {
       final url = Uri.https(backendUrl, 'categories/${category.id}.json');
       final response = await http.delete(url);
-      print('response.body ${response.body}');
+      //print('response.body ${response.body}');
       if (response.statusCode != 200) {
         throw Exception('Failed to remove category');
       }
       return response;
-    } catch (e) {
-      print(e);
+    } catch (e, stackTrace) {
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
       return http.Response('Failed to remove category', 500);
     }
   }

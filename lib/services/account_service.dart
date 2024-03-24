@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:sentry/sentry.dart';
 import 'package:expense_tracker/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:expense_tracker/models/account.dart';
@@ -8,11 +8,11 @@ class AccountService {
   static const backendUrl = Constants.backendUrl;
 
   // get accounts
-  Future<List<Account>> getAccounts() async {
+  Future<dynamic> getAccounts() async {
     try {
       final url = Uri.https(backendUrl, 'accounts.json');
       final response = await http.get(url);
-      print(response.body);
+      //print(response.body);
       if (response.statusCode != 200) {
         throw Exception('Failed to load accounts');
       }
@@ -32,9 +32,12 @@ class AccountService {
         );
       }
       return loadedAccounts;
-    } catch (e) {
-      print(e);
-      return [];
+    } catch (e, stackTrace) {
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
+      return http.Response('Failed to get accounts', 500);
     }
   }
 
@@ -50,15 +53,18 @@ class AccountService {
           'color': account.color,
         }),
       );
-      print('response.body ${response.body}');
+      //print('response.body ${response.body}');
 
       if (response.statusCode != 200) {
         throw Exception('Failed to add account');
       }
       return response;
-    } catch (e) {
-      print(e);
-      return http.Response('Failed to add account', 400);
+    } catch (e, stackTrace) {
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
+      return http.Response('Failed to add account', 500);
     }
   }
 
@@ -74,15 +80,18 @@ class AccountService {
           'color': account.color,
         }),
       );
-      print('response.body ${response.body}');
+      //print('response.body ${response.body}');
 
       if (response.statusCode != 200) {
         throw Exception('Failed to update account');
       }
       return response;
-    } catch (e) {
-      print(e);
-      return http.Response('Failed to update account', 400);
+    } catch (e, stackTrace) {
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
+      return http.Response('Failed to update account', 500);
     }
   }
 
@@ -91,15 +100,18 @@ class AccountService {
     try {
       final url = Uri.https(backendUrl, 'accounts/${account.id}.json');
       final response = await http.delete(url);
-      print('response.body ${response.body}');
+      //print('response.body ${response.body}');
 
       if (response.statusCode != 200) {
         throw Exception('Failed to remove account');
       }
       return response;
-    } catch (e) {
-      print(e);
-      return http.Response('Failed to remove account', 400);
+    } catch (e, stackTrace) {
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
+      return http.Response('Failed to remove account', 500);
     }
   }
 }

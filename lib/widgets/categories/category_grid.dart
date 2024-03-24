@@ -53,12 +53,15 @@ class CategoryGridItem extends StatelessWidget {
             children: [
               Text(
                 category.name,
-                style: Theme.of(context).textTheme.titleLarge,
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               Icon(
                 Helper().deserializeIconString(category.icon),
                 color: Colors.white,
-                size: 40,
+                size: 32,
               ),
             ],
           ),

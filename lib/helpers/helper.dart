@@ -16,6 +16,6 @@ class Helper {
 
   String formatCurrency(double amount) {
     final oCcy = NumberFormat("#,##0.00", "en_US");
-    return '\$${oCcy.format(amount)}';
+    return '€ ${oCcy.format(amount)}';
   }
 }

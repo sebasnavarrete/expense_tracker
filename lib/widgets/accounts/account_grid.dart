@@ -53,12 +53,15 @@ class AccountGridItem extends StatelessWidget {
             children: [
               Text(
                 account.name,
-                style: Theme.of(context).textTheme.titleLarge,
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               Icon(
                 Helper().deserializeIconString(account.icon),
                 color: Colors.white,
-                size: 40,
+                size: 32,
               ),
             ],
           ),

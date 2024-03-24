@@ -206,12 +206,18 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
             if (Platform.isIOS)
               CupertinoButton.filled(
                 onPressed: _submitForm,
-                child: const Text('Save category'),
+                child: const Text(
+                  'Save category',
+                  style: TextStyle(color: Colors.white),
+                ),
               )
             else
               ElevatedButton(
                 onPressed: _submitForm,
-                child: const Text('Save category'),
+                child: const Text(
+                  'Save category',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
           ],
         ),

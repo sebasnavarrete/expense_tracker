@@ -2,6 +2,7 @@ import 'package:expense_tracker/constants.dart';
 import 'package:expense_tracker/models/expense.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:sentry/sentry.dart';
 
 class ExpenseService {
   static const backendUrl = Constants.backendUrl;
@@ -15,8 +16,11 @@ class ExpenseService {
         expensesData = jsonDecode(response.body);
       }
       return expensesData;
-    } catch (e) {
-      throw Exception('Failed to load expenses');
+    } catch (e, stackTrace) {
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
     }
   }
 

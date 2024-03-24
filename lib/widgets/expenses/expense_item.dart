@@ -17,13 +17,13 @@ class ExpenseItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
+              color: Color(int.parse(expense.category!.color, radix: 16)),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               Helper().deserializeIconString(expense.category!.icon),
-              color: Theme.of(context).colorScheme.onPrimary,
-              size: 16,
+              color: Colors.white,
+              size: 20,
             ),
           ),
           const SizedBox(width: 8),
@@ -43,7 +43,7 @@ class ExpenseItem extends StatelessWidget {
                       Helper().formatCurrency(expense.amount),
                       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: const Color.fromARGB(255, 187, 14, 14),
+                            color: Theme.of(context).colorScheme.tertiary,
                           ),
                     ),
                   ],
@@ -58,7 +58,8 @@ class ExpenseItem extends StatelessWidget {
                         Icon(
                           Helper().deserializeIconString(expense.account!.icon),
                           size: 12,
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: Color(
+                              int.parse(expense.account!.color, radix: 16)),
                         ),
                         const SizedBox(width: 4),
                         Text(
