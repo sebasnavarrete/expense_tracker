@@ -7,8 +7,10 @@ import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/providers/accounts.dart';
 import 'package:expense_tracker/providers/categories.dart';
 import 'package:expense_tracker/services/expense_service.dart';
+import 'package:expense_tracker/widgets/expenses/category_select_grid.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:expense_tracker/models/expense.dart';
@@ -40,6 +42,7 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
   Account? _selectedAccount;
   DateTime? _selectedDate = DateTime.now();
   var saving = false;
+  var selectedOption = 'category';
 
   _presentDatePicker() async {
     final now = DateTime.now();
@@ -386,9 +389,7 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
                 ),
               ],
             ),
-            const SizedBox(
-              height: 32,
-            ),
+            Spacer(),
             if (Platform.isIOS)
               CupertinoButton.filled(
                 onPressed: () {
@@ -420,7 +421,21 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
                           color: Colors.white,
                         ),
                       ),
-              )
+              ),
+            const SizedBox(
+              height: 16,
+            ),
+            if (selectedOption == 'category')
+              CategorySelectGrid(
+                  categories: categories,
+                  onCategorySelected: (category) {
+                    setState(() {
+                      _selectedCategory = category;
+                    });
+                  }),
+            const SizedBox(
+              height: 16,
+            ),
           ],
         ),
       ),
