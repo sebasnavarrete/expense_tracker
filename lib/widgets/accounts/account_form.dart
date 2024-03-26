@@ -156,6 +156,7 @@ class _AccountFormState extends ConsumerState<AccountForm> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             TextFormField(
+              autofocus: true,
               controller: _nameController,
               decoration: const InputDecoration(labelText: 'Name'),
               validator: (value) {

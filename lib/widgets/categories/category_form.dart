@@ -89,30 +89,32 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
         return AlertDialog(
           title: const Text('Subcategory'),
           content: TextField(
+            autofocus: true,
             controller: _subcategoryController,
             decoration: const InputDecoration(
               labelText: 'Subcategory name',
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () {
-                // Add subcategory to list
-                if (_subcategoryController.text.isNotEmpty) {
-                  setState(() {
-                    if (index != '') {
-                      _subCategories.removeAt(index);
-                    }
-                    _subcategoryController.clear();
-                  });
-                  Navigator.of(ctx).pop();
-                }
-              },
-              child: const Text(
-                'Remove',
-                style: TextStyle(color: Colors.red),
+            if (index != '')
+              TextButton(
+                onPressed: () {
+                  // Add subcategory to list
+                  if (_subcategoryController.text.isNotEmpty) {
+                    setState(() {
+                      if (index != '') {
+                        _subCategories.removeAt(index);
+                      }
+                      _subcategoryController.clear();
+                    });
+                    Navigator.of(ctx).pop();
+                  }
+                },
+                child: const Text(
+                  'Remove',
+                  style: TextStyle(color: Colors.red),
+                ),
               ),
-            ),
             CupertinoButton(
               color: Theme.of(context).primaryColor,
               onPressed: () {
@@ -221,6 +223,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             TextFormField(
+              autofocus: true,
               controller: _nameController,
               decoration: const InputDecoration(labelText: 'Name'),
               validator: (value) {

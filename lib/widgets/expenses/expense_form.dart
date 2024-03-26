@@ -72,7 +72,6 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
     final enteredAmount = double.tryParse(
             _amountController.text.replaceAll('.', '').replaceAll(',', '.')) ??
         0;
-    //Replace to fix the issue with the thousands dot and decimal comma
     if (_selectedAccount == null) {
       error = true;
       errorMessage = 'Please select an account';
@@ -82,6 +81,9 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
       errorMessage = 'Please select a category';
     }
     if (error || !_formKey.currentState!.validate()) {
+      setState(() {
+        saving = false;
+      });
       return _showDialog(errorMessage);
     }
     Expense newExpense = Expense(
@@ -465,33 +467,53 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
             height: 16,
           ),
           if (_selectedOption == 'category')
-            CategorySelectGrid(
-                categories: categories,
-                selectedCategory: _selectedCategory,
-                selectedSubCategory: _selectedSubCategory,
-                subcategories: _selectedCategory?.subcategories ?? [],
-                onSubCategorySelected: (subcategory) {
-                  setState(() {
-                    _selectedSubCategory = subcategory;
-                    _selectedOption = 'account';
-                  });
-                },
-                onCategorySelected: (category) {
-                  setState(() {
-                    _selectedSubCategory = '';
-                    _selectedCategory = category;
-                  });
-                }),
+            if (categories.isEmpty)
+              const Center(
+                heightFactor: 5,
+                child: Column(
+                  children: [
+                    Text('No categories found'),
+                  ],
+                ),
+              )
+            else
+              CategorySelectGrid(
+                  categories: categories,
+                  selectedCategory: _selectedCategory,
+                  selectedSubCategory: _selectedSubCategory,
+                  subcategories: _selectedCategory?.subcategories ?? [],
+                  onSubCategorySelected: (subcategory) {
+                    setState(() {
+                      _selectedSubCategory = subcategory;
+                      _selectedOption = 'account';
+                    });
+                  },
+                  onCategorySelected: (category) {
+                    setState(() {
+                      _selectedSubCategory = '';
+                      _selectedCategory = category;
+                    });
+                  }),
           if (_selectedOption == 'account')
-            AccountSelectGrid(
-                accounts: accounts,
-                selectedAccount: _selectedAccount,
-                onAccountSelected: (account) {
-                  setState(() {
-                    _selectedAccount = account;
-                    _selectedOption = '';
-                  });
-                }),
+            if (accounts.isEmpty)
+              const Center(
+                heightFactor: 5,
+                child: Column(
+                  children: [
+                    Text('No accounts found'),
+                  ],
+                ),
+              )
+            else
+              AccountSelectGrid(
+                  accounts: accounts,
+                  selectedAccount: _selectedAccount,
+                  onAccountSelected: (account) {
+                    setState(() {
+                      _selectedAccount = account;
+                      _selectedOption = '';
+                    });
+                  }),
           const SizedBox(
             height: 16,
           ),
