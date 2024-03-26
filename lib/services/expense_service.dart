@@ -35,6 +35,7 @@ class ExpenseService {
         'category': expense.category!.id,
         'account': expense.account!.id,
         'notes': expense.notes,
+        'subcategory': expense.subcategory,
       });
 
       return http.Response(process.id, 200);
@@ -60,6 +61,7 @@ class ExpenseService {
         'category': expense.category!.id,
         'account': expense.account!.id,
         'notes': expense.notes,
+        'subcategory': expense.subcategory,
       });
 
       return http.Response('Expense updated', 200);

@@ -18,7 +18,12 @@ class AccountList {
   final List<Account> accounts;
 
   Account accountById(String id) {
-    return accounts.firstWhere((c) => c.id == id,
-        orElse: () => Account(name: '', icon: '', color: ''));
+    return accounts.firstWhere(
+      (c) => c.id == id,
+      orElse: () => Account(
+          name: 'No Account',
+          icon: '{"pack":"cupertino","key":"xmark_octagon_fill"}',
+          color: 'ffd50000'),
+    );
   }
 }

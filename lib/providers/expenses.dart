@@ -41,6 +41,7 @@ class ExpensesNotifier extends StateNotifier<List<Expense>> {
             category: CategoryList(categories).categoryById(item['category']),
             account: AccountList(accounts).accountById(item['account']),
             notes: item['notes'] ?? '',
+            subcategory: item['subcategory'] ?? '',
           ),
         );
       }

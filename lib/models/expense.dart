@@ -12,6 +12,7 @@ class Expense {
   final Category? category;
   final Account? account;
   String notes;
+  String subcategory;
 
   Expense({
     this.id = '',
@@ -20,6 +21,7 @@ class Expense {
     this.category,
     this.account,
     this.notes = '',
+    this.subcategory = '',
   });
 
   String get formattedDate => dateFormatter.format(date);

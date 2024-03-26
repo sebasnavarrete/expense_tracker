@@ -5,40 +5,65 @@ import 'package:flutter/material.dart';
 class CategorySelectGrid extends StatelessWidget {
   final List<Category> categories;
   final Function(Category) onCategorySelected;
+  final Function(String) onSubCategorySelected;
+  List subcategories;
+  final Category? selectedCategory;
+  final String selectedSubCategory;
 
-  const CategorySelectGrid({
+  CategorySelectGrid({
     super.key,
     required this.categories,
+    required this.subcategories,
     required this.onCategorySelected,
+    required this.onSubCategorySelected,
+    required this.selectedCategory,
+    required this.selectedSubCategory,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(
-          height: 40,
-          //width: double.infinity,
-          child: // horizontal scroll with buttons
-              ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: 8,
-            itemBuilder: (ctx, index) {
-              return Container(
-                margin: const EdgeInsets.only(right: 8),
-                child: ElevatedButton(
-                  onPressed: () {},
-                  child: Icon(
-                    Helper().deserializeIconString(categories[0].icon),
-                    color: Colors.white,
+        if (subcategories.length > 0)
+          SizedBox(
+            height: 40,
+            width: double.infinity,
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              scrollDirection: Axis.horizontal,
+              itemCount: subcategories.length,
+              itemBuilder: (ctx, index) {
+                return Container(
+                  margin: const EdgeInsets.only(right: 8),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          selectedSubCategory == subcategories[index]
+                              ? Theme.of(context).colorScheme.secondary
+                              : Colors.grey[500],
+                      elevation:
+                          (selectedSubCategory == subcategories[index]) ? 8 : 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    onPressed: () {
+                      onSubCategorySelected(subcategories[index]);
+                    },
+                    child: Text(
+                      subcategories[index],
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-        ),
+        const SizedBox(height: 8),
         SizedBox(
-          height: 200,
+          height: 250,
           width: double.infinity,
           child: GridView(
             padding: const EdgeInsets.all(8),
@@ -52,9 +77,15 @@ class CategorySelectGrid extends StatelessWidget {
               for (final category in categories)
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(
-                      int.parse(category.color, radix: 16),
-                    ),
+                    backgroundColor: selectedCategory == category
+                        ? Theme.of(context).colorScheme.secondary
+                        : Color(
+                            int.parse(category.color, radix: 16),
+                          ),
+                    elevation: (selectedCategory != null &&
+                            selectedCategory!.id == category.id)
+                        ? 8
+                        : 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

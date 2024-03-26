@@ -20,12 +20,16 @@ class CategoryService {
       final List<Category> loadedCategories = [];
       for (final item in categoryData.docs) {
         final data = item.data();
+        final subcategories = (data.containsKey('subcategories'))
+            ? jsonDecode(data['subcategories'])
+            : [];
         loadedCategories.add(
           Category(
             id: item.id,
             name: data['name'],
             icon: data['icon'],
             color: data['color'],
+            subcategories: subcategories,
           ),
         );
       }
@@ -50,6 +54,7 @@ class CategoryService {
         'name': category.name,
         'icon': category.icon,
         'color': category.color,
+        'subcategories': jsonEncode(category.subcategories),
       });
       return http.Response(process.id, 200);
     } catch (e, stackTrace) {
@@ -73,6 +78,7 @@ class CategoryService {
         'name': category.name,
         'icon': category.icon,
         'color': category.color,
+        'subcategories': jsonEncode(category.subcategories),
       });
 
       return http.Response('Category updated', 200);

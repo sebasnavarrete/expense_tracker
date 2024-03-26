@@ -31,12 +31,18 @@ class ExpenseItem extends StatelessWidget {
             child: Column(
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
                       expense.category!.name,
                       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      expense.subcategory,
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const Spacer(),
                     Text(

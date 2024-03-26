@@ -4,12 +4,14 @@ class Category {
     required this.name,
     required this.icon,
     required this.color,
+    required this.subcategories,
   });
 
   String id;
   final String name;
   final String icon;
   final String color;
+  final List subcategories;
 }
 
 class CategoryList {
@@ -19,6 +21,10 @@ class CategoryList {
 
   Category categoryById(String id) {
     return categories.firstWhere((c) => c.id == id,
-        orElse: () => Category(name: '', icon: '', color: ''));
+        orElse: () => Category(
+            name: 'No Category',
+            icon: '{"pack":"cupertino","key":"xmark_octagon_fill"}',
+            color: 'ffd50000',
+            subcategories: []));
   }
 }

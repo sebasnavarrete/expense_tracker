@@ -36,7 +36,7 @@ class CategoryGridItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -63,6 +63,15 @@ class CategoryGridItem extends StatelessWidget {
                 color: Colors.white,
                 size: 32,
               ),
+              // list subcategories if available
+              if (category.subcategories.isNotEmpty)
+                Text(
+                  category.subcategories.join(', '),
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                        color: Colors.white,
+                      ),
+                ),
             ],
           ),
         ),

@@ -26,7 +26,9 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
   var categoryId = '';
   final _nameController = TextEditingController();
   final _colorController = TextEditingController();
+  final _subcategoryController = TextEditingController();
   final _iconController = TextEditingController();
+  List _subCategories = [];
   IconData? icon;
   Color? color;
 
@@ -77,6 +79,67 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
     );
   }
 
+  subcategoryForm(subcategory) {
+    dynamic index =
+        (subcategory != '') ? _subCategories.indexOf(subcategory) : '';
+    _subcategoryController.text = subcategory;
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Subcategory'),
+          content: TextField(
+            controller: _subcategoryController,
+            decoration: const InputDecoration(
+              labelText: 'Subcategory name',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Add subcategory to list
+                if (_subcategoryController.text.isNotEmpty) {
+                  setState(() {
+                    if (index != '') {
+                      _subCategories.removeAt(index);
+                    }
+                    _subcategoryController.clear();
+                  });
+                  Navigator.of(ctx).pop();
+                }
+              },
+              child: const Text(
+                'Remove',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+            CupertinoButton(
+              color: Theme.of(context).primaryColor,
+              onPressed: () {
+                // Add subcategory to list
+                if (_subcategoryController.text.isNotEmpty) {
+                  setState(() {
+                    if (index != '') {
+                      _subCategories[index] = _subcategoryController.text;
+                    } else {
+                      _subCategories.add(_subcategoryController.text);
+                    }
+                    _subcategoryController.clear();
+                  });
+                  Navigator.of(ctx).pop();
+                }
+              },
+              child: const Text(
+                'Save',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -85,6 +148,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
       _nameController.text = widget.category!.name;
       _colorController.text = widget.category!.color;
       _iconController.text = widget.category!.icon;
+      _subCategories = widget.category!.subcategories;
       icon = deserializeIcon(
         Map<String, dynamic>.from(jsonDecode(widget.category!.icon)),
         iconPack: IconPack.allMaterial,
@@ -112,6 +176,7 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
         name: _nameController.text,
         color: _colorController.text,
         icon: _iconController.text,
+        subcategories: _subCategories,
       );
       if (categoryId.isNotEmpty) {
         newCategory.id = categoryId;
@@ -210,6 +275,77 @@ class _CategoryFormState extends ConsumerState<CategoryForm> {
                 ),
               ],
             ),
+            // Grid list to list and add subcategories
+            Container(
+                margin: const EdgeInsets.only(top: 16),
+                child: Column(
+                  children: [
+                    Text(
+                      'Subcategories',
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 16),
+                    GridView(
+                      shrinkWrap: true,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 5,
+                        childAspectRatio: 2,
+                        crossAxisSpacing: 4,
+                        mainAxisSpacing: 4,
+                      ),
+                      children: [
+                        //map with for subcategories
+                        for (final subcategory in _subCategories)
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              elevation: 5,
+                              backgroundColor:
+                                  color ?? Theme.of(context).primaryColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.all(4),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                subcategoryForm(subcategory);
+                              });
+                            },
+                            child: FittedBox(
+                              fit: BoxFit.fitWidth,
+                              child: Text(
+                                subcategory,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge!
+                                    .copyWith(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            elevation: 5,
+                            backgroundColor: Colors.grey[700],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.all(4),
+                          ),
+                          onPressed: () {
+                            subcategoryForm('');
+                          },
+                          child: const Icon(
+                            Icons.add_box_outlined,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                )),
             const SizedBox(height: 32),
             if (Platform.isIOS)
               CupertinoButton.filled(
