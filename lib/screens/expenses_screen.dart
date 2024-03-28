@@ -84,29 +84,21 @@ class _ExpensesScreenState extends ConsumerState<ExpensesScreen> {
       account: null,
     );
 
-    Widget mainContent = const Center(
-      child: Text('No expenses yet'),
-    );
-
-    if (registeredExpenses.isNotEmpty) {
-      mainContent = FutureBuilder(
-        future: _expensesFuture,
-        builder: (context, snapshot) =>
-            snapshot.connectionState == ConnectionState.waiting
-                ? const Center(child: CircularProgressIndicator())
-                : ExpensesList(
-                    expenses: registeredExpenses,
-                    onRemoveExpense: _removeExpense,
-                    onEditExpense: _openExpenseForm,
-                  ),
-      );
-    }
-
     return Scaffold(
       body: Column(
         children: [
           Expanded(
-            child: mainContent,
+            child: FutureBuilder(
+              future: _expensesFuture,
+              builder: (context, snapshot) =>
+                  snapshot.connectionState == ConnectionState.waiting
+                      ? const Center(child: CircularProgressIndicator())
+                      : ExpensesList(
+                          expenses: registeredExpenses,
+                          onRemoveExpense: _removeExpense,
+                          onEditExpense: _openExpenseForm,
+                        ),
+            ),
           ),
         ],
       ),

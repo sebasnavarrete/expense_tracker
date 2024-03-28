@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+final _firebase = FirebaseAuth.instance;
+
 class MainDrawer extends StatelessWidget {
   const MainDrawer({super.key, required this.onSelectScreen});
 
@@ -13,7 +15,7 @@ class MainDrawer extends StatelessWidget {
         children: [
           AppBar(
             title: Text(
-              'Menu',
+              (_firebase.currentUser?.displayName ?? 'Expense Tracker'),
               style: Theme.of(context).textTheme.titleLarge!.copyWith(
                     color: Colors.white,
                   ),

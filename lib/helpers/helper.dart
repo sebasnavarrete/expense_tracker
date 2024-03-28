@@ -18,4 +18,8 @@ class Helper {
     final oCcy = NumberFormat("#,##0.00", "en_US");
     return '€ ${oCcy.format(amount)}';
   }
+
+  String capitalize(text) {
+    return "${text[0].toUpperCase()}${text.substring(1)}";
+  }
 }

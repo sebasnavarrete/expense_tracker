@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:expense_tracker/helpers/helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -18,52 +19,109 @@ class _AuthScreenState extends State<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
 
   var _isLogin = true;
+  var _name = '';
   var _email = '';
   var _password = '';
+  var loading = false;
+
+  void _showMessageDialog(message, color) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(fontSize: 16),
+        ),
+        elevation: 10,
+        duration: const Duration(seconds: 5),
+        backgroundColor: color,
+      ),
+    );
+  }
+
+  void _resetPassword() async {
+    if (_email.isEmpty) {
+      _showMessageDialog('Please enter your email address!',
+          Theme.of(context).colorScheme.error);
+      return;
+    }
+    try {
+      await _firebase.sendPasswordResetEmail(email: _email);
+      _showMessageDialog(
+          'If the email exists in our system, a password reset link has been sent to it.',
+          Theme.of(context).colorScheme.primary);
+    } on FirebaseAuthException catch (e, stackTrace) {
+      var message = 'An error occurred, please try again!';
+      if (e.message != null) {
+        message = e.message!;
+      }
+      _showMessageDialog(message, Theme.of(context).colorScheme.error);
+      Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
+    } catch (e, stackTrace) {
+      _showMessageDialog('An error occurred, please try again!',
+          Theme.of(context).colorScheme.error);
+      Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
+      );
+    }
+  }
 
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
     if (!isValid) {
       return;
     }
+    setState(() {
+      loading = true;
+    });
     _formKey.currentState!.save();
-
     try {
       if (_isLogin) {
-        final userCredentials = _firebase.signInWithEmailAndPassword(
+        await _firebase.signInWithEmailAndPassword(
           email: _email,
           password: _password,
         );
-        print(userCredentials);
       } else {
         final userCredentials = await _firebase.createUserWithEmailAndPassword(
           email: _email,
           password: _password,
         );
         if (userCredentials.user != null) {
-          ScaffoldMessenger.of(context).clearSnackBars();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('User created successfully!'),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-            ),
-          );
+          final displayName = _name
+              .split(' ')
+              .map((word) => Helper().capitalize(word))
+              .join(' ');
+          await userCredentials.user!.updateDisplayName(displayName);
+          _showMessageDialog('User created successfully. Welcome!',
+              Theme.of(context).colorScheme.primary);
         }
       }
-    } on FirebaseAuthException catch (error) {
+      setState(() {
+        loading = false;
+      });
+    } on FirebaseAuthException catch (e, stackTrace) {
       var message = 'An error occurred, please check your credentials!';
-
-      if (error.message != null) {
-        message = error.message!;
+      setState(() {
+        loading = false;
+      });
+      if (e.message != null) {
+        message = e.message!;
       }
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
+      _showMessageDialog(message, Theme.of(context).colorScheme.error);
+      await Sentry.captureException(
+        e,
+        stackTrace: stackTrace,
       );
     } catch (e, stackTrace) {
+      setState(() {
+        loading = false;
+      });
+      _showMessageDialog('An error occurred, please check your credentials!',
+          Theme.of(context).colorScheme.error);
       await Sentry.captureException(
         e,
         stackTrace: stackTrace,
@@ -99,6 +157,29 @@ class _AuthScreenState extends State<AuthScreen> {
                         key: _formKey,
                         child: Column(
                           children: [
+                            //name field
+                            if (!_isLogin)
+                              TextFormField(
+                                decoration: const InputDecoration(
+                                  labelText: 'Name',
+                                  labelStyle: TextStyle(color: Colors.white),
+                                ),
+                                keyboardType: TextInputType.name,
+                                autocorrect: false,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                ),
+                                validator: (value) {
+                                  if (!_isLogin &&
+                                      (value == null || value.isEmpty)) {
+                                    return 'Please enter your name.';
+                                  }
+                                  return null;
+                                },
+                                onSaved: (value) {
+                                  _name = value!;
+                                },
+                              ),
                             TextFormField(
                               decoration: const InputDecoration(
                                 labelText: 'Email',
@@ -118,8 +199,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                 }
                                 return null;
                               },
-                              onSaved: (value) {
-                                _email = value!;
+                              onChanged: (value) {
+                                _email = value;
                               },
                             ),
                             const SizedBox(height: 16),
@@ -140,12 +221,36 @@ class _AuthScreenState extends State<AuthScreen> {
                                 }
                                 return null;
                               },
-                              onSaved: (value) {
-                                _password = value!;
+                              onChanged: (value) {
+                                _password = value;
                               },
                             ),
                             const SizedBox(height: 16),
-                            if (Platform.isIOS)
+                            if (!_isLogin)
+                              TextFormField(
+                                decoration: const InputDecoration(
+                                  labelText: 'Repeat Password',
+                                  labelStyle: TextStyle(color: Colors.white),
+                                ),
+                                obscureText: true,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                ),
+                                validator: (value) {
+                                  if (!_isLogin &&
+                                      (value == null || value != _password)) {
+                                    return 'Passwords do not match.';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            if (!_isLogin) const SizedBox(height: 16),
+                            if (loading)
+                              const CircularProgressIndicator(
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            if (!loading && Platform.isIOS)
                               CupertinoButton(
                                 onPressed: _submit,
                                 color:
@@ -158,30 +263,39 @@ class _AuthScreenState extends State<AuthScreen> {
                                         Theme.of(context).colorScheme.primary,
                                   ),
                                 ),
-                              )
-                            else
-                              ElevatedButton(
-                                onPressed: _submit,
+                              ),
+                            if (!loading)
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _isLogin = !_isLogin;
+                                    //reset form
+                                    _formKey.currentState!.reset();
+                                  });
+                                },
                                 child: Text(
-                                  (_isLogin ? 'Login' : 'Sign up'),
+                                  (_isLogin
+                                      ? 'Create new account'
+                                      : 'I already have an account'),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                            TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  _isLogin = !_isLogin;
-                                });
-                              },
-                              child: Text(
-                                (_isLogin
-                                    ? 'Create new account'
-                                    : 'I already have an account'),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                            if (_isLogin && !loading)
+                              TextButton(
+                                onPressed: () {
+                                  _resetPassword();
+                                },
+                                child: const Text(
+                                  'Reset Password',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                       ),
