@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:expense_tracker/helpers/helper.dart';
@@ -16,8 +15,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:expense_tracker/models/expense.dart';
 import 'package:expense_tracker/providers/expenses.dart';
-
-import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 
 final dateFormater = DateFormat.yMMMd();
 
@@ -44,7 +41,7 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
   Account? _selectedAccount;
   DateTime? _selectedDate = DateTime.now();
   var saving = false;
-  var _selectedOption = '';
+  var _selectedOption = 'amount';
 
   _presentDatePicker() async {
     final now = DateTime.now();
@@ -63,15 +60,31 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
     });
   }
 
+  _delayAction(action) {
+    Future.delayed(Duration(milliseconds: 200)).then((value) {
+      action();
+    });
+  }
+
+  _nextStep() {
+    Future.delayed(Duration(milliseconds: 200)).then((value) {
+      if (_selectedOption == 'amount') {
+        setState(() {
+          _selectedOption = 'category';
+        });
+      } else if (_selectedOption == 'notes') {
+        _presentDatePicker();
+      }
+    });
+  }
+
   _submitData() async {
     setState(() {
       saving = true;
     });
     bool error = false;
     String errorMessage = '';
-    final enteredAmount = double.tryParse(
-            _amountController.text.replaceAll('.', '').replaceAll(',', '.')) ??
-        0;
+    final enteredAmount = double.tryParse(_amountController.text) ?? 0;
     if (_selectedAccount == null) {
       error = true;
       errorMessage = 'Please select an account';
@@ -196,328 +209,380 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
     UnfocusDisposition disposition = UnfocusDisposition.scope;
     final categories = ref.watch(categoriesProvider);
     final accounts = ref.watch(accountsProvider);
-    return Form(
-      key: _formKey,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: _selectedOption == 'amount'
-                  ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
-                  : Colors.transparent,
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    onTap: () {
-                      setState(() {
-                        _selectedOption = 'amount';
-                      });
-                    },
-                    autofocus: true,
-                    inputFormatters: [
-                      CurrencyTextInputFormatter(
-                        locale: 'es',
-                        decimalDigits: 2,
-                        symbol: '',
-                      ),
-                    ],
-                    controller: _amountController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(
-                        labelText: 'Amount', prefixText: '\€ '),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter an amount';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Category
-          InkWell(
-            splashColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-            onTap: () {
-              setState(() {
-                _selectedOption = 'category';
-                primaryFocus!.unfocus(disposition: disposition);
-              });
-            },
-            child: Container(
+    return Padding(
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: _selectedOption == 'category'
+                color: _selectedOption == 'amount'
                     ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
                     : Colors.transparent,
               ),
-              padding: const EdgeInsets.all(16),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Category',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Spacer(),
-                  if (_selectedCategory != null)
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      margin: const EdgeInsets.only(right: 8),
-                      decoration: BoxDecoration(
-                        color: Color(
-                            int.parse(_selectedCategory!.color, radix: 16)),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Helper().deserializeIconString(_selectedCategory!.icon),
-                        color: Colors.white,
-                        size: 14,
-                      ),
-                    ),
-                  Text(
-                    _selectedCategory == null
-                        ? 'Category not selected'
-                        : _selectedCategory!.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    _selectedSubCategory == null
-                        ? ''
-                        : _selectedSubCategory.toString(),
-                    style: const TextStyle(
-                      fontSize: 12,
+                  Expanded(
+                    child: TextFormField(
+                      onTap: () {
+                        setState(() {
+                          _selectedOption = 'amount';
+                        });
+                      },
+                      autofocus: true,
+                      controller: _amountController,
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(
+                          labelText: 'Amount', prefixText: '\€ '),
+                      validator: (value) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            double.tryParse(value) == null) {
+                          return 'Please enter a valid amount';
+                        }
+                        return null;
+                      },
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          // Account
-          InkWell(
-            splashColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-            onTap: () {
-              setState(() {
-                _selectedOption = 'account';
-                primaryFocus!.unfocus(disposition: disposition);
-              });
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                color: _selectedOption == 'account'
-                    ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
-                    : Colors.transparent,
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Account',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Spacer(),
-                  if (_selectedAccount != null)
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      margin: const EdgeInsets.only(right: 8),
-                      decoration: BoxDecoration(
-                        color: Color(
-                            int.parse(_selectedAccount!.color, radix: 16)),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Helper().deserializeIconString(_selectedAccount!.icon),
-                        color: Colors.white,
-                        size: 14,
-                      ),
-                    ),
-                  Text(
-                    _selectedAccount == null
-                        ? 'Account not selected'
-                        : _selectedAccount!.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              color: _selectedOption == 'notes'
-                  ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
-                  : Colors.transparent,
-            ),
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: TextFormField(
+            // Category
+            InkWell(
+              splashColor:
+                  Theme.of(context).colorScheme.primary.withOpacity(0.2),
               onTap: () {
                 setState(() {
-                  _selectedOption = 'notes';
+                  if (_selectedOption == 'amount' ||
+                      _selectedOption == 'notes') {
+                    primaryFocus!.unfocus(disposition: disposition);
+                    _delayAction(() {
+                      setState(() {
+                        _selectedOption = 'category';
+                      });
+                    });
+                  } else {
+                    setState(() {
+                      _selectedOption = 'category';
+                    });
+                  }
                 });
               },
-              controller: _notesController,
-              decoration: const InputDecoration(
-                  labelText: 'Notes', hintText: 'Add notes'),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: _selectedOption == 'date'
-                  ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
-                  : Colors.transparent,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.all(0),
-                      alignment: Alignment.centerLeft,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        primaryFocus!.unfocus(disposition: disposition);
-                      });
-                      _presentDatePicker();
-                    },
-                    child: Text(
-                      textAlign: TextAlign.left,
-                      _selectedDate == null
-                          ? 'Select date'
-                          : 'Date: ${dateFormater.format(_selectedDate!)}',
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 16,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: _selectedOption == 'category'
+                      ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                      : Colors.transparent,
                 ),
-                Expanded(
-                  child: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        primaryFocus!.unfocus(disposition: disposition);
-                      });
-                      _presentDatePicker();
-                    },
-                    icon: const Icon(Icons.calendar_today),
-                    alignment: Alignment.centerRight,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Spacer(),
-          if (Platform.isIOS)
-            CupertinoButton.filled(
-              onPressed: () {
-                _submitData();
-              },
-              child: (saving)
-                  ? const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    )
-                  : const Text(
-                      'Save Expense',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-            )
-          else
-            ElevatedButton(
-              onPressed: () {
-                _submitData();
-              },
-              child: (saving)
-                  ? const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    )
-                  : const Text(
-                      'Save Expense',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-            ),
-          const SizedBox(
-            height: 16,
-          ),
-          if (_selectedOption == 'category')
-            if (categories.isEmpty)
-              const Center(
-                heightFactor: 5,
-                child: Column(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('No categories found'),
+                    const Text(
+                      'Category',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (_selectedCategory != null)
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        margin: const EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                          color: Color(
+                              int.parse(_selectedCategory!.color, radix: 16)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Helper()
+                              .deserializeIconString(_selectedCategory!.icon),
+                          color: Colors.white,
+                          size: 14,
+                        ),
+                      ),
+                    Text(
+                      _selectedCategory == null
+                          ? 'Category not selected'
+                          : _selectedCategory!.name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (_selectedSubCategory != '') const SizedBox(width: 8),
+                    Text(
+                      _selectedSubCategory.toString(),
+                      style: const TextStyle(
+                        fontSize: 12,
+                      ),
+                    ),
                   ],
                 ),
-              )
-            else
-              CategorySelectGrid(
-                  categories: categories,
-                  selectedCategory: _selectedCategory,
-                  selectedSubCategory: _selectedSubCategory,
-                  subcategories: _selectedCategory?.subcategories ?? [],
-                  onSubCategorySelected: (subcategory) {
+              ),
+            ),
+            // Account
+            InkWell(
+              splashColor:
+                  Theme.of(context).colorScheme.primary.withOpacity(0.2),
+              onTap: () {
+                if (_selectedOption == 'amount' || _selectedOption == 'notes') {
+                  primaryFocus!.unfocus(disposition: disposition);
+                  _delayAction(() {
                     setState(() {
-                      _selectedSubCategory = subcategory;
                       _selectedOption = 'account';
                     });
-                  },
-                  onCategorySelected: (category) {
-                    setState(() {
-                      _selectedSubCategory = '';
-                      _selectedCategory = category;
-                    });
-                  }),
-          if (_selectedOption == 'account')
-            if (accounts.isEmpty)
-              const Center(
-                heightFactor: 5,
-                child: Column(
+                  });
+                } else {
+                  setState(() {
+                    _selectedOption = 'account';
+                  });
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: _selectedOption == 'account'
+                      ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                      : Colors.transparent,
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('No accounts found'),
+                    const Text(
+                      'Account',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (_selectedAccount != null)
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        margin: const EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                          color: Color(
+                              int.parse(_selectedAccount!.color, radix: 16)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Helper()
+                              .deserializeIconString(_selectedAccount!.icon),
+                          color: Colors.white,
+                          size: 14,
+                        ),
+                      ),
+                    Text(
+                      _selectedAccount == null
+                          ? 'Account not selected'
+                          : _selectedAccount!.name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
-              )
-            else
-              AccountSelectGrid(
-                  accounts: accounts,
-                  selectedAccount: _selectedAccount,
-                  onAccountSelected: (account) {
-                    setState(() {
-                      _selectedAccount = account;
-                      _selectedOption = '';
-                    });
-                  }),
-          const SizedBox(
-            height: 16,
-          ),
-        ],
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: _selectedOption == 'notes'
+                    ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                    : Colors.transparent,
+              ),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: TextFormField(
+                onTap: () {
+                  setState(() {
+                    _selectedOption = 'notes';
+                  });
+                },
+                controller: _notesController,
+                decoration: const InputDecoration(
+                    labelText: 'Notes', hintText: 'Add notes'),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: _selectedOption == 'date'
+                    ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                    : Colors.transparent,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.all(0),
+                        alignment: Alignment.centerLeft,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          primaryFocus!.unfocus(disposition: disposition);
+                        });
+                        _presentDatePicker();
+                      },
+                      child: Text(
+                        textAlign: TextAlign.left,
+                        _selectedDate == null
+                            ? 'Select date'
+                            : 'Date: ${dateFormater.format(_selectedDate!)}',
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          primaryFocus!.unfocus(disposition: disposition);
+                        });
+                        _presentDatePicker();
+                      },
+                      icon: const Icon(Icons.calendar_today),
+                      alignment: Alignment.centerRight,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Spacer(),
+            //Next Button
+            if (_selectedOption == 'amount')
+              if (Platform.isIOS)
+                CupertinoButton.filled(
+                  onPressed: () {
+                    primaryFocus!.unfocus(disposition: disposition);
+                    _nextStep();
+                  },
+                  child: const Text(
+                    'Next',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                )
+              else
+                ElevatedButton(
+                  onPressed: () {
+                    primaryFocus!.unfocus(disposition: disposition);
+                    _nextStep();
+                  },
+                  child: const Text(
+                    'Next',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+            //Save button
+            if (_selectedOption != 'amount')
+              if (Platform.isIOS)
+                CupertinoButton.filled(
+                  onPressed: () {
+                    _submitData();
+                  },
+                  child: (saving)
+                      ? const CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        )
+                      : const Text(
+                          'Save Expense',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                )
+              else
+                ElevatedButton(
+                  onPressed: () {
+                    _submitData();
+                  },
+                  child: (saving)
+                      ? const CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        )
+                      : const Text(
+                          'Save Expense',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                ),
+            const SizedBox(
+              height: 16,
+            ),
+            if (_selectedOption == 'category')
+              if (categories.isEmpty)
+                const Center(
+                  heightFactor: 5,
+                  child: Column(
+                    children: [
+                      Text('No categories found'),
+                    ],
+                  ),
+                )
+              else
+                CategorySelectGrid(
+                    categories: categories,
+                    selectedCategory: _selectedCategory,
+                    selectedSubCategory: _selectedSubCategory,
+                    subcategories: _selectedCategory?.subcategories ?? [],
+                    onSubCategorySelected: (subcategory) {
+                      setState(() {
+                        _selectedSubCategory = subcategory;
+                        _selectedOption = 'account';
+                      });
+                    },
+                    onCategorySelected: (category) {
+                      setState(() {
+                        _selectedSubCategory = '';
+                        _selectedCategory = category;
+                      });
+                    }),
+            if (_selectedOption == 'account')
+              if (accounts.isEmpty)
+                const Center(
+                  heightFactor: 5,
+                  child: Column(
+                    children: [
+                      Text('No accounts found'),
+                    ],
+                  ),
+                )
+              else
+                AccountSelectGrid(
+                    accounts: accounts,
+                    selectedAccount: _selectedAccount,
+                    onAccountSelected: (account) {
+                      setState(() {
+                        _selectedAccount = account;
+                        _selectedOption = '';
+                      });
+                    }),
+            const SizedBox(
+              height: 16,
+            ),
+          ],
+        ),
       ),
     );
   }
