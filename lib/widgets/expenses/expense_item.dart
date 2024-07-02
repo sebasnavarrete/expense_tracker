@@ -3,9 +3,10 @@ import 'package:expense_tracker/models/expense.dart';
 import 'package:flutter/material.dart';
 
 class ExpenseItem extends StatelessWidget {
-  const ExpenseItem(this.expense, {super.key});
+  const ExpenseItem(this.expense, {super.key, this.showDate});
 
   final Expense expense;
+  final bool? showDate;
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +73,11 @@ class ExpenseItem extends StatelessWidget {
                           expense.account!.name,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
+                        if (showDate == true)
+                          Text(
+                            ' • ${expense.date.day}',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
                       ],
                     ),
                   ],

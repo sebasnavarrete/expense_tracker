@@ -61,13 +61,13 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
   }
 
   _delayAction(action) {
-    Future.delayed(Duration(milliseconds: 200)).then((value) {
+    Future.delayed(Duration(milliseconds: 300)).then((value) {
       action();
     });
   }
 
   _nextStep() {
-    Future.delayed(Duration(milliseconds: 200)).then((value) {
+    Future.delayed(Duration(milliseconds: 300)).then((value) {
       if (_selectedOption == 'amount') {
         setState(() {
           _selectedOption = 'category';

@@ -60,9 +60,20 @@ class ExpenseList {
 
   final List<Expense> expenses;
 
-// get grouped expenses by date using collection
   Map<String, List<Expense>> get groupedExpenses {
     final groupedExpenses = groupBy(expenses, (Expense e) => e.formattedDate);
     return groupedExpenses;
+  }
+
+  Map<String, List<Expense>> get monthlyExpenses {
+    final monthlyExpenses =
+        groupBy(expenses, (Expense e) => DateFormat.yMMMM().format(e.date));
+    return monthlyExpenses;
+  }
+
+  Map<String, List<Expense>> get expensesByCategory {
+    final expensesByCategory =
+        groupBy(expenses, (Expense e) => e.category!.name);
+    return expensesByCategory;
   }
 }

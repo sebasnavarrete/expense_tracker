@@ -1,5 +1,6 @@
 import 'package:expense_tracker/models/expense.dart';
 import 'package:expense_tracker/widgets/chart/chart.dart';
+import 'package:expense_tracker/widgets/reports/monthly_report.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/providers/expenses.dart';
@@ -13,7 +14,8 @@ class ReportsScreen extends ConsumerWidget {
     return Scaffold(
       body: Column(
         children: [
-          Chart(expenses: registeredExpenses),
+          //Chart(expenses: registeredExpenses),
+          MonthlyReport(expenses: registeredExpenses)
         ],
       ),
     );
